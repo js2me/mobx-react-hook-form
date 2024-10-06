@@ -1,12 +1,37 @@
 {
-  "name": "mobx-form",
-  "version": "1.0.0",
+  "name": "mobx-react-hook-form",
+  "version": "0.0.1",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist",
+    "check": "eslint . --fix",
+
+    "prebuild": "npm run clean && npm run check",
+    "build": "tsc",
+    "postbuild": "node ./post-build.mjs",
+    "prepub": "pnpm run build",
+    "pub": "cd dist && npm publish",
+    "postpub": "npm run clean"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "js2me",
+  "license": "MIT",
+  "peerDependencies": {
+    "mobx": "^6.12.4",
+    "mobx-react-lite": "^4.0.7",
+    "mobx-vm-entities": "^2.0.10",
+    "react": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "yammies": "^2.0.8"
+  },
+  "dependencies": {
+    "disposer-util": "^1.0.11"
+  },
+  "devDependencies": {
+    "eslint": "8.57.0",
+    "js2me-eslint-config": "1.0.4",
+    "js2me-exports-post-build-script": "1.0.1",
+    "rimraf": "6.0.1",
+    "typescript": "5.6.2"
+  }
 }
