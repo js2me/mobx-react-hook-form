@@ -1,6 +1,6 @@
 import { Disposable, Disposer, IDisposer } from 'disposer-util';
+import noop from 'lodash-es/noop';
 import { makeObservable, observable, runInAction } from 'mobx';
-import { noop } from 'mobx/dist/internal';
 import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
 import { AnyObject } from 'yammies/utils/types';
 
@@ -18,7 +18,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     TFieldValues,
     TContext
   >['onSubmitFailed'];
-  protected cancelHandler?: MobxFormParams<TFieldValues, TContext>['onCancel'];
+  protected resetHandler?: MobxFormParams<TFieldValues, TContext>['onReset'];
 
   state: FormState<TFieldValues>;
 
@@ -26,7 +26,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     disposer,
     onSubmit,
     onSubmitFailed,
-    onCancel,
+    onReset,
     ...RHFParams
   }: MobxFormParams<TFieldValues, TContext>) {
     this.disposer = disposer ?? new Disposer();
@@ -49,7 +49,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     };
     this.submitHandler = onSubmit;
     this.submitErrorHandler = onSubmitFailed;
-    this.cancelHandler = onCancel;
+    this.resetHandler = onReset;
     this.RHFParams = RHFParams;
 
     makeObservable(this, {
@@ -70,7 +70,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
     return {
       ...formResult,
-      onCancel: this.cancelHandler ?? noop,
+      onReset: this.resetHandler ?? noop,
       onSubmit: formResult.handleSubmit(
         this.submitHandler ?? noop,
         this.submitErrorHandler,

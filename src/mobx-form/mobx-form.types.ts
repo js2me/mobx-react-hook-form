@@ -13,7 +13,7 @@ export interface MobxFormParams<TFieldValues extends AnyObject, TContext = any>
 
   onSubmit?: SubmitHandler<TFieldValues>;
   onSubmitFailed?: SubmitErrorHandler<TFieldValues>;
-  onCancel?: VoidFunction;
+  onReset?: VoidFunction;
 }
 
 export interface ConnectedMobxForm<
@@ -21,5 +21,5 @@ export interface ConnectedMobxForm<
   TContext = any,
 > extends Omit<UseFormReturn<TFieldValues, TContext>, 'handleSubmit'> {
   onSubmit: VoidFunction;
-  onCancel: VoidFunction;
+  onReset: VoidFunction;
 }

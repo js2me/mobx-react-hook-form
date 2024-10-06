@@ -1,11 +1,10 @@
 {
   "name": "mobx-react-hook-form",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "scripts": {
     "clean": "rimraf dist",
     "check": "eslint . --fix",
-
     "prebuild": "npm run clean && npm run check",
     "build": "tsc",
     "postbuild": "node ./post-build.mjs",
@@ -24,9 +23,11 @@
   },
   "dependencies": {
     "disposer-util": "^1.0.11",
+    "lodash-es": "^4.17.21",
     "yammies": "^2.0.8"
   },
   "devDependencies": {
+    "@types/lodash-es": "4.17.12",
     "eslint": "8.57.0",
     "js2me-eslint-config": "1.0.4",
     "js2me-exports-post-build-script": "1.0.1",
