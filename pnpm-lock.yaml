@@ -17,9 +17,6 @@ importers:
       mobx-react-lite:
         specifier: ^4.0.7
         version: 4.0.7(mobx@6.13.3)(react@18.3.1)
-      mobx-vm-entities:
-        specifier: ^2.0.10
-        version: 2.0.13(disposer-util@1.0.11)(mobx-react-lite@4.0.7(mobx@6.13.3)(react@18.3.1))(mobx@6.13.3)(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1743,9 +1740,6 @@ packages:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
 
-  lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
-
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
@@ -1808,14 +1802,6 @@ packages:
         optional: true
       react-native:
         optional: true
-
-  mobx-vm-entities@2.0.13:
-    resolution: {integrity: sha512-87TCmp/W4oNUYcKH/o/SwXsCgjv/bvFu+CPpnymB2kJU6I/ZC7Uv4/YY/ZQDXfNgd+/Kec80BIrhenbJLGVvpQ==}
-    peerDependencies:
-      disposer-util: ^1.0.9
-      mobx: '>=6.12.4'
-      mobx-react-lite: '>=4.0.7'
-      react: '>=18.3.1'
 
   mobx@6.13.3:
     resolution: {integrity: sha512-YtAS+ZMbdpbHYUU4ESht3na8KiX11KuMT1yOiKtbKlQ0GZkHDYPKyEw/Tdp7h7aHyLrTWj2TBaSNJ6bCr638iQ==}
@@ -4531,8 +4517,6 @@ snapshots:
     dependencies:
       p-locate: 5.0.0
 
-  lodash-es@4.17.21: {}
-
   lodash.debounce@4.0.8: {}
 
   lodash.merge@4.6.2: {}
@@ -4579,14 +4563,6 @@ snapshots:
       mobx: 6.13.3
       react: 18.3.1
       use-sync-external-store: 1.2.2(react@18.3.1)
-
-  mobx-vm-entities@2.0.13(disposer-util@1.0.11)(mobx-react-lite@4.0.7(mobx@6.13.3)(react@18.3.1))(mobx@6.13.3)(react@18.3.1):
-    dependencies:
-      disposer-util: 1.0.11
-      lodash-es: 4.17.21
-      mobx: 6.13.3
-      mobx-react-lite: 4.0.7(mobx@6.13.3)(react@18.3.1)
-      react: 18.3.1
 
   mobx@6.13.3: {}
 

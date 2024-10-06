@@ -1,6 +1,6 @@
 {
   "name": "mobx-react-hook-form",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "scripts": {
     "clean": "rimraf dist",
@@ -19,13 +19,12 @@
   "peerDependencies": {
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
-    "mobx-vm-entities": "^2.0.10",
     "react": "^18.3.1",
-    "react-hook-form": "^7.53.0",
-    "yammies": "^2.0.8"
+    "react-hook-form": "^7.53.0"
   },
   "dependencies": {
-    "disposer-util": "^1.0.11"
+    "disposer-util": "^1.0.11",
+    "yammies": "^2.0.8"
   },
   "devDependencies": {
     "eslint": "8.57.0",
