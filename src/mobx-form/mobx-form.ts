@@ -2,7 +2,7 @@ import { Disposable, Disposer, IDisposer } from 'disposer-util';
 import noop from 'lodash-es/noop';
 import { makeObservable, observable, runInAction } from 'mobx';
 import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
-import { AnyObject } from 'yammies/utils/types';
+import { AnyObject, Maybe } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
 
@@ -20,7 +20,11 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
   >['onSubmitFailed'];
   protected resetHandler?: MobxFormParams<TFieldValues, TContext>['onReset'];
 
+  form: Maybe<UseFormReturn<TFieldValues, TContext>>;
+
   state: FormState<TFieldValues>;
+
+  data: Maybe<TFieldValues>;
 
   constructor({
     disposer,
@@ -54,6 +58,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
     makeObservable(this, {
       state: observable.deep,
+      data: observable.deep,
     });
   }
 
@@ -65,7 +70,9 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     formResult: UseFormReturn<TFieldValues, TContext>,
   ): ConnectedMobxForm<TFieldValues, TContext> {
     runInAction(() => {
+      this.form = formResult;
       this.state = formResult.formState;
+      this.data = formResult.getValues();
     });
 
     return {
@@ -80,5 +87,8 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
   dispose(): void {
     this.disposer.dispose();
+
+    this.form = null;
+    this.data = null;
   }
 }
