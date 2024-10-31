@@ -9,7 +9,7 @@ import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
 export class MobxForm<TFieldValues extends AnyObject, TContext = any>
   implements Disposable
 {
-  disposer: IDisposer;
+  protected disposer: IDisposer;
 
   protected RHFParams: UseFormProps<TFieldValues, TContext>;
 
