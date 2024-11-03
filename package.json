@@ -1,16 +1,14 @@
 {
   "name": "mobx-react-hook-form",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "scripts": {
     "clean": "rimraf dist",
     "check": "eslint . --fix",
+
     "prebuild": "npm run clean && npm run check",
-    "build": "tsc",
-    "postbuild": "node ./post-build.mjs",
-    "prepub": "pnpm run build",
-    "pub": "cd dist && npm publish",
-    "postpub": "npm run clean"
+    "build": "tsc && node ./post-build.mjs",
+    "pub": "PUBLISH=true pnpm run build"
   },
   "keywords": [],
   "author": "js2me",
@@ -30,7 +28,7 @@
     "@types/lodash-es": "4.17.12",
     "eslint": "8.57.0",
     "js2me-eslint-config": "1.0.4",
-    "js2me-exports-post-build-script": "1.0.1",
+    "js2me-exports-post-build-script": "2.0.4",
     "rimraf": "6.0.1",
     "typescript": "5.6.2"
   }
