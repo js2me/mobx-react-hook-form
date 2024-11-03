@@ -51,7 +51,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     onSubmit,
     onSubmitFailed,
     onReset,
-    ...RHFParams
+    ...params
   }: MobxFormParams<TFieldValues, TContext>) {
     this.disposer = disposer ?? new Disposer();
 
@@ -74,12 +74,12 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     this.submitHandler = onSubmit;
     this.submitErrorHandler = onSubmitFailed;
     this.resetHandler = onReset;
-    this.params = RHFParams;
+    this.params = params;
 
-    makeObservable<this, 'RHFParams'>(this, {
+    makeObservable<this, 'params'>(this, {
       state: observable.deep,
       data: observable.deep,
-      RHFParams: observable.ref,
+      params: observable.ref,
       setParams: action.bound,
     });
   }
