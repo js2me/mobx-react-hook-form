@@ -1,6 +1,6 @@
 import { Disposable, Disposer, IDisposer } from 'disposer-util';
 import noop from 'lodash-es/noop';
-import { makeObservable, observable, runInAction } from 'mobx';
+import { action, makeObservable, observable, runInAction } from 'mobx';
 import {
   DeepPartial,
   FormState,
@@ -16,7 +16,11 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 {
   protected disposer: IDisposer;
 
-  protected RHFParams: UseFormProps<TFieldValues, TContext>;
+  /**
+   * Readl react-hook-form params
+   * Needed to connect real react-hook-form to this mobx wrapper
+   */
+  protected params: UseFormProps<TFieldValues, TContext>;
 
   protected submitHandler?: MobxFormParams<TFieldValues, TContext>['onSubmit'];
   protected submitErrorHandler?: MobxFormParams<
@@ -25,10 +29,19 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
   >['onSubmitFailed'];
   protected resetHandler?: MobxFormParams<TFieldValues, TContext>['onReset'];
 
+  /**
+   * Original react-hook-form form
+   */
   form: Maybe<UseFormReturn<TFieldValues, TContext>>;
 
+  /**
+   * form state received from form.formState
+   */
   state: FormState<TFieldValues>;
 
+  /**
+   * Raw data received from form.getValues()
+   */
   data: Maybe<DeepPartial<TFieldValues>>;
 
   protected isConnected = false;
@@ -61,19 +74,29 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     this.submitHandler = onSubmit;
     this.submitErrorHandler = onSubmitFailed;
     this.resetHandler = onReset;
-    this.RHFParams = RHFParams;
+    this.params = RHFParams;
 
-    makeObservable(this, {
+    makeObservable<this, 'RHFParams'>(this, {
       state: observable.deep,
       data: observable.deep,
+      RHFParams: observable.ref,
+      setParams: action.bound,
     });
   }
 
-  getRHFParams() {
-    return this.RHFParams;
+  /**
+   * Allows to modify real react-hook-form useForm() payload
+   */
+  setParams(params: UseFormProps<TFieldValues, TContext>) {
+    this.params = params;
   }
 
-  connectRHF(
+  /**
+   * Needed to connect real react-hook-form to this mobx wrapper
+   *
+   * This is used in useMobxForm
+   */
+  protected connect(
     formResult: UseFormReturn<TFieldValues, TContext>,
   ): ConnectedMobxForm<TFieldValues, TContext> {
     if (!this.isConnected) {
