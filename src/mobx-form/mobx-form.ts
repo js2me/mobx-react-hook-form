@@ -1,12 +1,7 @@
 import { Disposable, Disposer, IDisposer } from 'disposer-util';
 import noop from 'lodash-es/noop';
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import {
-  DeepPartial,
-  FormState,
-  UseFormProps,
-  UseFormReturn,
-} from 'react-hook-form';
+import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
 import { AnyObject, Maybe } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
@@ -42,7 +37,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
   /**
    * Raw data received from form.getValues()
    */
-  data: Maybe<DeepPartial<TFieldValues>>;
+  data: Maybe<TFieldValues>;
 
   protected isConnected = false;
 
@@ -105,7 +100,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
       runInAction(() => {
         this.form = formResult;
         this.state = formResult.formState;
-        this.data = formResult.getValues() as DeepPartial<TFieldValues>;
+        this.data = formResult.getValues();
       });
 
       this.disposer.add(
@@ -113,7 +108,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
           runInAction(() => {
             this.form = formResult;
             this.state = formResult.formState;
-            this.data = formResult.getValues() as DeepPartial<TFieldValues>;
+            this.data = formResult.getValues();
           });
         }).unsubscribe,
       );
