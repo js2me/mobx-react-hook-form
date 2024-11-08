@@ -1,6 +1,12 @@
 import { Disposable, Disposer, IDisposer } from 'disposer-util';
 import noop from 'lodash-es/noop';
-import { action, makeObservable, observable, runInAction } from 'mobx';
+import {
+  action,
+  makeObservable,
+  observable,
+  reaction,
+  runInAction,
+} from 'mobx';
 import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
 import { AnyObject, Maybe } from 'yammies/utils/types';
 
@@ -46,6 +52,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     onSubmit,
     onSubmitFailed,
     onReset,
+    getParams,
     ...params
   }: MobxFormParams<TFieldValues, TContext>) {
     this.disposer = disposer ?? new Disposer();
@@ -76,7 +83,14 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
       data: observable.deep,
       params: observable.ref,
       setParams: action.bound,
+      updateParams: action.bound,
     });
+
+    if (getParams) {
+      this.disposer.add(
+        reaction(getParams, (params) => this.updateParams(params)),
+      );
+    }
   }
 
   /**
@@ -84,6 +98,13 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
    */
   setParams(params: UseFormProps<TFieldValues, TContext>) {
     this.params = params;
+  }
+
+  /**
+   * Allows to modify real react-hook-form useForm() payload
+   */
+  updateParams(params: Partial<UseFormProps<TFieldValues, TContext>>) {
+    this.setParams({ ...this.params, ...params });
   }
 
   /**

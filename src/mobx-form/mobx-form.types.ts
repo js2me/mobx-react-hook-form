@@ -28,6 +28,10 @@ export interface MobxFormParams<TFieldValues extends AnyObject, TContext = any>
    * Form reset handler
    */
   onReset?: VoidFunction;
+  /**
+   * Dynamic change react-hook-form params, works as reaction
+   */
+  getParams?: () => Partial<UseFormProps<TFieldValues, TContext>>;
 }
 
 /**
