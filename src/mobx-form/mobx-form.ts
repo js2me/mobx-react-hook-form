@@ -21,7 +21,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
    * Readl react-hook-form params
    * Needed to connect real react-hook-form to this mobx wrapper
    */
-  protected params: UseFormProps<TFieldValues, TContext>;
+  params: UseFormProps<TFieldValues, TContext>;
 
   protected submitHandler?: MobxFormParams<TFieldValues, TContext>['onSubmit'];
   protected submitErrorHandler?: MobxFormParams<
