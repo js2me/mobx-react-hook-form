@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { AnyObject } from 'yammies/utils/types';
+import type { AnyObject } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxForm } from '../mobx-form';
 

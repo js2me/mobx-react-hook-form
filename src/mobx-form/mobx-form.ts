@@ -1,4 +1,4 @@
-import { Disposable, Disposer, IDisposer } from 'disposer-util';
+import type { Disposable } from 'disposer-util';
 import noop from 'lodash-es/noop';
 import {
   action,
@@ -8,15 +8,15 @@ import {
   runInAction,
 } from 'mobx';
 import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
-import { AnyObject, Maybe } from 'yammies/utils/types';
+import { WithAbortController } from 'with-abort-controller';
+import type { AnyObject, Maybe } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
 
 export class MobxForm<TFieldValues extends AnyObject, TContext = any>
+  extends WithAbortController
   implements Disposable
 {
-  protected disposer: IDisposer;
-
   /**
    * Readl react-hook-form params
    * Needed to connect real react-hook-form to this mobx wrapper
@@ -48,14 +48,25 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
   protected isConnected = false;
 
   constructor({
+    // eslint-disable-next-line sonarjs/deprecation
     disposer,
+    abortSignal,
     onSubmit,
     onSubmitFailed,
     onReset,
     getParams,
     ...params
   }: MobxFormParams<TFieldValues, TContext>) {
-    this.disposer = disposer ?? new Disposer();
+    super(abortSignal);
+
+    if (disposer) {
+      disposer.add(() => this.dispose());
+    }
+
+    this.abortSignal.addEventListener('abort', () => {
+      this.form = null;
+      this.data = null;
+    });
 
     this.state = {
       disabled: false,
@@ -87,9 +98,9 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     });
 
     if (getParams) {
-      this.disposer.add(
-        reaction(getParams, (params) => this.updateParams(params)),
-      );
+      reaction(getParams, (params) => this.updateParams(params), {
+        signal: this.abortSignal,
+      });
     }
   }
 
@@ -124,14 +135,17 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
         this.data = formResult.getValues();
       });
 
-      this.disposer.add(
-        formResult.watch(() => {
-          runInAction(() => {
-            this.form = formResult;
-            this.state = formResult.formState;
-            this.data = formResult.getValues();
-          });
-        }).unsubscribe,
+      const formWatchSubscription = formResult.watch(() => {
+        runInAction(() => {
+          this.form = formResult;
+          this.state = formResult.formState;
+          this.data = formResult.getValues();
+        });
+      });
+
+      this.abortSignal.addEventListener(
+        'abort',
+        formWatchSubscription.unsubscribe,
       );
     }
 
@@ -146,9 +160,6 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
   }
 
   dispose(): void {
-    this.disposer.dispose();
-
-    this.form = null;
-    this.data = null;
+    this.abortController.abort();
   }
 }
