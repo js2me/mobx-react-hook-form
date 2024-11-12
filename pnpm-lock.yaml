@@ -11,6 +11,9 @@ importers:
       disposer-util:
         specifier: ^1.0.11
         version: 1.0.11
+      linked-abort-controller:
+        specifier: ^1.0.1
+        version: 1.0.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -26,9 +29,6 @@ importers:
       react-hook-form:
         specifier: ^7.53.0
         version: 7.53.0(react@18.3.1)
-      with-abort-controller:
-        specifier: 1.0.0
-        version: 1.0.0
       yammies:
         specifier: ^2.0.8
         version: 2.0.8
@@ -1753,6 +1753,9 @@ packages:
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
+  linked-abort-controller@1.0.1:
+    resolution: {integrity: sha512-mCyDwG6/aWXbsW6a6NNTm5MWmiK8KB9JKUSBwpjrY6qSHAG8+crNiSZpHGn1zCQ7a2kgXlSYOcvlOyYnih7/pA==}
+
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
@@ -2345,9 +2348,6 @@ packages:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
     hasBin: true
-
-  with-abort-controller@1.0.0:
-    resolution: {integrity: sha512-7lkS2vkzd4nxT2o4dE60cl8uQA2e5C+uwE/Bu87ONNcqhXvi5JXuKTHmkc+zuGMjXjxFL8gZ3o6ZRPCIosMreg==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -4557,6 +4557,8 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
+  linked-abort-controller@1.0.1: {}
+
   locate-path@5.0.0:
     dependencies:
       p-locate: 4.1.0
@@ -5201,8 +5203,6 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
-
-  with-abort-controller@1.0.0: {}
 
   word-wrap@1.2.5: {}
 

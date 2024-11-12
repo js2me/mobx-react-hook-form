@@ -1,4 +1,5 @@
 import type { Disposable } from 'disposer-util';
+import { LinkedAbortController } from 'linked-abort-controller';
 import noop from 'lodash-es/noop';
 import {
   action,
@@ -8,17 +9,17 @@ import {
   runInAction,
 } from 'mobx';
 import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
-import { WithAbortController } from 'with-abort-controller';
 import type { AnyObject, Maybe } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
 
 export class MobxForm<TFieldValues extends AnyObject, TContext = any>
-  extends WithAbortController
   implements Disposable
 {
+  protected abortController: AbortController;
+
   /**
-   * Readl react-hook-form params
+   * Real react-hook-form params
    * Needed to connect real react-hook-form to this mobx wrapper
    */
   params: UseFormProps<TFieldValues, TContext>;
@@ -57,13 +58,13 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     getParams,
     ...params
   }: MobxFormParams<TFieldValues, TContext>) {
-    super(abortSignal);
+    this.abortController = new LinkedAbortController(abortSignal);
 
     if (disposer) {
       disposer.add(() => this.dispose());
     }
 
-    this.abortSignal.addEventListener('abort', () => {
+    this.abortController.signal.addEventListener('abort', () => {
       this.form = null;
       this.data = null;
     });
@@ -98,9 +99,15 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
     });
 
     if (getParams) {
-      reaction(getParams, (params) => this.updateParams(params), {
-        signal: this.abortSignal,
-      });
+      reaction(
+        getParams,
+        (params) => {
+          this.updateParams(params);
+        },
+        {
+          signal: this.abortController.signal,
+        },
+      );
     }
   }
 
@@ -143,7 +150,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
         });
       });
 
-      this.abortSignal.addEventListener(
+      this.abortController.signal.addEventListener(
         'abort',
         formWatchSubscription.unsubscribe,
       );
