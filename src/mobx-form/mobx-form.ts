@@ -18,8 +18,11 @@ import type { AnyObject, Maybe } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
 
-export class MobxForm<TFieldValues extends AnyObject, TContext = any>
-  implements Disposable
+export class MobxForm<
+  TFieldValues extends AnyObject,
+  TContext = any,
+  TFieldOutputValues extends AnyObject = TFieldValues,
+> implements Disposable
 {
   protected abortController: AbortController;
 
@@ -31,7 +34,7 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
   protected handleSubmit(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ...args: Parameters<SubmitHandler<TFieldValues>>
+    ...args: Parameters<SubmitHandler<TFieldOutputValues>>
   ): void | Promise<void> {
     this.config.onSubmit?.(...args);
     // used to override
@@ -67,7 +70,9 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
   protected isConnected = false;
 
-  constructor(private config: MobxFormParams<TFieldValues, TContext>) {
+  constructor(
+    private config: MobxFormParams<TFieldValues, TContext, TFieldOutputValues>,
+  ) {
     this.abortController = new LinkedAbortController(config.abortSignal);
 
     // eslint-disable-next-line sonarjs/deprecation
@@ -170,13 +175,22 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
       ...formResult,
       onReset: () => this.handleReset(),
       onSubmit: formResult.handleSubmit(
-        (...args) => this.handleSubmit(...args),
+        (...args) =>
+          this.handleSubmit(
+            ...(args as unknown as Parameters<
+              SubmitHandler<TFieldOutputValues>
+            >),
+          ),
         (...args) => this.handleSubmitFailed(...args),
       ),
       handleSubmit: (onValid, onInvalid) => {
         return formResult.handleSubmit(
           async (...args) => {
-            await this.handleSubmit(...args);
+            await this.handleSubmit(
+              ...(args as unknown as Parameters<
+                SubmitHandler<TFieldOutputValues>
+              >),
+            );
             await onValid(...args);
           },
           async (...args) => {

@@ -10,8 +10,11 @@ import type { AnyObject } from 'yammies/utils/types';
 /**
  * Additional options for {@link MobxForm} constructor
  */
-export interface MobxFormParams<TFieldValues extends AnyObject, TContext = any>
-  extends UseFormProps<TFieldValues, TContext> {
+export interface MobxFormParams<
+  TFieldValues extends AnyObject,
+  TContext = any,
+  TFieldOutputValues extends AnyObject = TFieldValues,
+> extends UseFormProps<TFieldValues, TContext> {
   /**
    * Disposer for mobx form
    * @deprecated use {abortSignal} instead
@@ -24,7 +27,7 @@ export interface MobxFormParams<TFieldValues extends AnyObject, TContext = any>
   /**
    * Form submit handler
    */
-  onSubmit?: SubmitHandler<TFieldValues>;
+  onSubmit?: SubmitHandler<TFieldOutputValues>;
   /**
    * Form submit failed handler
    */
