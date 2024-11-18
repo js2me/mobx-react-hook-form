@@ -7,6 +7,8 @@ import {
 } from 'react-hook-form';
 import type { AnyObject } from 'yammies/utils/types';
 
+import type { MobxForm } from './mobx-form';
+
 /**
  * Additional options for {@link MobxForm} constructor
  */
@@ -60,3 +62,14 @@ export interface ConnectedMobxForm<
    */
   onSubmit: VoidFunction;
 }
+
+export type ExtractFormFieldValues<T extends MobxForm<any, any, any>> =
+  T extends MobxForm<infer TFieldValues> ? TFieldValues : never;
+
+export type ExtractFormContext<T extends MobxForm<any, any, any>> =
+  T extends MobxForm<any, infer TContext, any> ? TContext : never;
+
+export type ExtractFormFieldOutputValues<T extends MobxForm<any, any, any>> =
+  T extends MobxForm<any, any, infer TFieldOutputValues>
+    ? TFieldOutputValues
+    : never;
