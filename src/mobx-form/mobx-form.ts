@@ -1,6 +1,5 @@
 import type { Disposable } from 'disposer-util';
 import { LinkedAbortController } from 'linked-abort-controller';
-import noop from 'lodash-es/noop';
 import {
   action,
   makeObservable,
@@ -8,7 +7,13 @@ import {
   reaction,
   runInAction,
 } from 'mobx';
-import { FormState, UseFormProps, UseFormReturn } from 'react-hook-form';
+import {
+  FormState,
+  SubmitErrorHandler,
+  SubmitHandler,
+  UseFormProps,
+  UseFormReturn,
+} from 'react-hook-form';
 import type { AnyObject, Maybe } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
@@ -24,12 +29,26 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
    */
   params: UseFormProps<TFieldValues, TContext>;
 
-  protected submitHandler?: MobxFormParams<TFieldValues, TContext>['onSubmit'];
-  protected submitErrorHandler?: MobxFormParams<
-    TFieldValues,
-    TContext
-  >['onSubmitFailed'];
-  protected resetHandler?: MobxFormParams<TFieldValues, TContext>['onReset'];
+  protected handleSubmit(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ...args: Parameters<SubmitHandler<TFieldValues>>
+  ): void | Promise<void> {
+    this.config.onSubmit?.(...args);
+    // used to override
+  }
+
+  protected handleSubmitFailed(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ...args: Parameters<SubmitErrorHandler<TFieldValues>>
+  ): void | Promise<void> {
+    this.config.onSubmitFailed?.(...args);
+    // used to override
+  }
+
+  protected handleReset() {
+    this.config.onReset?.();
+    // used to override
+  }
 
   /**
    * Original react-hook-form form
@@ -48,20 +67,13 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
   protected isConnected = false;
 
-  constructor({
-    // eslint-disable-next-line sonarjs/deprecation
-    disposer,
-    abortSignal,
-    onSubmit,
-    onSubmitFailed,
-    onReset,
-    getParams,
-    ...params
-  }: MobxFormParams<TFieldValues, TContext>) {
-    this.abortController = new LinkedAbortController(abortSignal);
+  constructor(private config: MobxFormParams<TFieldValues, TContext>) {
+    this.abortController = new LinkedAbortController(config.abortSignal);
 
-    if (disposer) {
-      disposer.add(() => this.dispose());
+    // eslint-disable-next-line sonarjs/deprecation
+    if (config.disposer) {
+      // eslint-disable-next-line sonarjs/deprecation
+      config.disposer.add(() => this.dispose());
     }
 
     this.abortController.signal.addEventListener('abort', () => {
@@ -85,10 +97,8 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
       dirtyFields: {},
       validatingFields: {},
     };
-    this.submitHandler = onSubmit;
-    this.submitErrorHandler = onSubmitFailed;
-    this.resetHandler = onReset;
-    this.params = params;
+
+    this.params = config;
 
     makeObservable<this, 'params'>(this, {
       state: observable.deep,
@@ -98,9 +108,9 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
       updateParams: action.bound,
     });
 
-    if (getParams) {
+    if (config.getParams) {
       reaction(
-        getParams,
+        config.getParams,
         (params) => {
           this.updateParams(params);
         },
@@ -158,24 +168,20 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
 
     return {
       ...formResult,
-      onReset: this.resetHandler ?? noop,
+      onReset: () => this.handleReset(),
       onSubmit: formResult.handleSubmit(
-        this.submitHandler ?? noop,
-        this.submitErrorHandler,
+        (...args) => this.handleSubmit(...args),
+        (...args) => this.handleSubmitFailed(...args),
       ),
       handleSubmit: (onValid, onInvalid) => {
         return formResult.handleSubmit(
-          (...args) => {
-            if (this.submitHandler) {
-              this.submitHandler(...args);
-            }
-            onValid(...args);
+          async (...args) => {
+            await this.handleSubmit(...args);
+            await onValid(...args);
           },
-          (...args) => {
-            if (this.submitErrorHandler) {
-              this.submitErrorHandler(...args);
-            }
-            onInvalid?.(...args);
+          async (...args) => {
+            await this.handleSubmitFailed(...args);
+            await onInvalid?.(...args);
           },
         );
       },
