@@ -163,6 +163,22 @@ export class MobxForm<TFieldValues extends AnyObject, TContext = any>
         this.submitHandler ?? noop,
         this.submitErrorHandler,
       ),
+      handleSubmit: (onValid, onInvalid) => {
+        return formResult.handleSubmit(
+          (...args) => {
+            if (this.submitHandler) {
+              this.submitHandler(...args);
+            }
+            onValid(...args);
+          },
+          (...args) => {
+            if (this.submitErrorHandler) {
+              this.submitErrorHandler(...args);
+            }
+            onInvalid?.(...args);
+          },
+        );
+      },
     };
   }
 

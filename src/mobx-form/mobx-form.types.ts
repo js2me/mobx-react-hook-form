@@ -42,12 +42,12 @@ export interface MobxFormParams<TFieldValues extends AnyObject, TContext = any>
 /**
  * Interface for a connected Mobx form.
  * Extends the properties of react-hook-form's UseFormReturn,
- * excluding the 'handleSubmit' method, and adds custom form handlers.
+ * Adds custom form handlers.
  */
 export interface ConnectedMobxForm<
   TFieldValues extends AnyObject,
   TContext = any,
-> extends Omit<UseFormReturn<TFieldValues, TContext>, 'handleSubmit'> {
+> extends UseFormReturn<TFieldValues, TContext> {
   /**
    * Handler to reset the form.
    */
