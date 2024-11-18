@@ -3,8 +3,12 @@ import type { AnyObject } from 'yammies/utils/types';
 
 import { ConnectedMobxForm, MobxForm } from '../mobx-form';
 
-export const useMobxForm = <TFieldValues extends AnyObject, TContext>(
-  mobxForm: MobxForm<TFieldValues, TContext>,
+export const useMobxForm = <
+  TFieldValues extends AnyObject,
+  TContext,
+  TFieldOutputValues extends AnyObject = TFieldValues,
+>(
+  mobxForm: MobxForm<TFieldValues, TContext, TFieldOutputValues>,
 ): ConnectedMobxForm<TFieldValues, TContext> =>
   // @ts-expect-error ts(2445)
   mobxForm.connect(useForm(mobxForm.params));
