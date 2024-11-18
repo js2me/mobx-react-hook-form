@@ -63,11 +63,15 @@ export interface ConnectedMobxForm<
   onSubmit: VoidFunction;
 }
 
-export type ExtractFormFieldValues<T extends MobxForm<any, any, any>> =
-  T extends MobxForm<infer TFieldValues> ? TFieldValues : never;
+export type ExtractFormFieldValues<T extends MobxForm<any, any, any>> = Exclude<
+  T['params']['values'],
+  undefined | null
+>;
 
-export type ExtractFormContext<T extends MobxForm<any, any, any>> =
-  T extends MobxForm<any, infer TContext, any> ? TContext : never;
+export type ExtractFormContext<T extends MobxForm<any, any, any>> = Exclude<
+  T['params']['context'],
+  undefined | null
+>;
 
 export type ExtractFormFieldOutputValues<T extends MobxForm<any, any, any>> =
   T extends MobxForm<any, any, infer TFieldOutputValues>
