@@ -1,5 +1,4 @@
 import { useForm } from 'react-hook-form';
-import type { AnyObject } from 'yammies/utils/types';
 
 import {
   ConnectedMobxForm,
@@ -8,7 +7,7 @@ import {
   MobxForm,
 } from '../mobx-form';
 
-export const useMobxForm = <T extends MobxForm<AnyObject, any, any>>(
+export const useMobxForm = <T extends MobxForm<any, any, any>>(
   mobxForm: T,
 ): ConnectedMobxForm<ExtractFormFieldValues<T>, ExtractFormContext<T>> =>
   // @ts-expect-error ts(2445)
