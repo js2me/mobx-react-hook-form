@@ -14,7 +14,7 @@ import {
   UseFormProps,
   UseFormReturn,
 } from 'react-hook-form';
-import type { AnyObject, Maybe } from 'yammies/utils/types';
+import type { AnyObject, Maybe } from 'yummies/utils/types';
 
 import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
 
