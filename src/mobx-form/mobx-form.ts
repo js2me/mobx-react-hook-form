@@ -51,9 +51,7 @@ export class MobxForm<
   /**
    * Original react-hook-form form
    */
-  private instance: Maybe<
-    ReturnType<typeof createFormControl<TFieldValues, TContext>>
-  >;
+  instance: Maybe<ReturnType<typeof createFormControl<TFieldValues, TContext>>>;
 
   /**
    * form state received from form.formState
@@ -176,6 +174,10 @@ export class MobxForm<
       }
     });
   }
+
+  onReset = () => {
+    this.config.onReset?.();
+  };
 
   /**
    * Allows to modify real react-hook-form useForm() payload

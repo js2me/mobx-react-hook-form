@@ -40,8 +40,8 @@ importers:
         specifier: 8.57.0
         version: 8.57.0
       js2me-eslint-config:
-        specifier: 1.0.4
-        version: 1.0.4(eslint@8.57.0)(prettier@3.3.3)(typescript@5.6.2)
+        specifier: 1.0.7
+        version: 1.0.7(eslint@8.57.0)(prettier@3.3.3)(typescript@5.6.2)
       js2me-exports-post-build-script:
         specifier: 2.0.10
         version: 2.0.10
@@ -1716,8 +1716,8 @@ packages:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
 
-  js2me-eslint-config@1.0.4:
-    resolution: {integrity: sha512-d/1DA6tNJ2u2KhL8eg61G7hQuPKrMSfgsoaQOaiEEjDPYJKjINcLjBPy67uzJRKEq9FAHhOoAWm8Y34yY4XG7w==}
+  js2me-eslint-config@1.0.7:
+    resolution: {integrity: sha512-c8YQQz3rlCWM80J05INOHTzF6mNk7LNs9X+aLWrPC44r62KKa1jefj/XZAGaWzt1NFxvAg0lu+rxSY8dblY97g==}
     peerDependencies:
       eslint: ^8.57.0
       prettier: ^3.3.3
@@ -4527,7 +4527,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  js2me-eslint-config@1.0.4(eslint@8.57.0)(prettier@3.3.3)(typescript@5.6.2):
+  js2me-eslint-config@1.0.7(eslint@8.57.0)(prettier@3.3.3)(typescript@5.6.2):
     dependencies:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.6.2))(eslint@8.57.0)(typescript@5.6.2)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.6.2)

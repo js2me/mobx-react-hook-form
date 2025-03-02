@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/lodash-es": "4.17.12",
     "eslint": "8.57.0",
-    "js2me-eslint-config": "1.0.4",
+    "js2me-eslint-config": "1.0.7",
     "js2me-exports-post-build-script": "2.0.10",
     "rimraf": "6.0.1",
     "prettier": "3.3.3",
