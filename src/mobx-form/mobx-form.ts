@@ -107,7 +107,6 @@ export class MobxForm<
     observable.ref(this, 'params');
     observable.ref(this, 'instance');
     action.bound(this, 'setParams');
-    action.bound(this, 'updateParams');
     action.bound(this, 'syncForm');
 
     this.instance = createFormControl<TFieldValues, any>(config);
@@ -165,10 +164,7 @@ export class MobxForm<
     data?: DeepPartial<TFieldValues> | TFieldValues,
   ) {
     runInAction(() => {
-      Object.getOwnPropertyNames(formState).forEach((key) => {
-        // @ts-expect-error kkkk
-        this.state[key] = formState[key];
-      });
+      Object.assign(this.state, formState)
       if (this.data) {
         this.data = data as any;
       }
