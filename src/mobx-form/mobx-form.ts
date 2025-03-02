@@ -98,7 +98,9 @@ export class MobxForm<
 
     this.params = config;
 
-    observable.deep(this, 'state');
+    Object.keys(this.state).forEach((key) => {
+      observable.deep(this.state, key);
+    });
     observable.deep(this, 'data');
     observable.ref(this, 'params');
     action.bound(this, 'setParams');
@@ -139,7 +141,11 @@ export class MobxForm<
     data: DeepPartial<TFieldValues> = formResult.getValues() as any,
   ) {
     this.form = formResult;
-    this.state = formResult.formState;
+    Object.keys(formResult.formState).forEach((key) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      this.state[key] = formResult.formState[key];
+    });
     this.data = data;
   }
 
