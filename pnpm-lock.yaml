@@ -27,8 +27,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       react-hook-form:
-        specifier: ^7.53.0
-        version: 7.53.0(react@18.3.1)
+        specifier: ^7.55.0-next.3
+        version: 7.55.0-next.5(react@18.3.1)
       yummies:
         specifier: ^3.0.0
         version: 3.0.1
@@ -45,6 +45,9 @@ importers:
       js2me-exports-post-build-script:
         specifier: 2.0.10
         version: 2.0.10
+      prettier:
+        specifier: 3.3.3
+        version: 3.3.3
       rimraf:
         specifier: 6.0.1
         version: 6.0.1
@@ -2005,8 +2008,8 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-hook-form@7.53.0:
-    resolution: {integrity: sha512-M1n3HhqCww6S2hxLxciEXy2oISPnAzxY7gvwVPrtlczTM/1dDadXgUxDpHMrMTblDOcm/AXtXxHwZ3jpg1mqKQ==}
+  react-hook-form@7.55.0-next.5:
+    resolution: {integrity: sha512-wciPUKdMoI6Whr/w3tpwNPU5C66LJsgOVtnm+OIidtP7zavPPq+BHSIbbca8BuLvWY2/cfERgVk+xp3mSfuu9A==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -4799,7 +4802,7 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-hook-form@7.53.0(react@18.3.1):
+  react-hook-form@7.55.0-next.5(react@18.3.1):
     dependencies:
       react: 18.3.1
 

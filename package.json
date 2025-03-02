@@ -17,10 +17,10 @@
   "peerDependencies": {
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
-    "react": "^18.3.1",
-    "react-hook-form": "^7.53.0"
+    "react": "^18.3.1"
   },
   "dependencies": {
+    "react-hook-form": "^7.55.0-next.3",
     "disposer-util": "^1.0.11",
     "linked-abort-controller": "^1.0.1",
     "lodash-es": "^4.17.21",
@@ -32,6 +32,7 @@
     "js2me-eslint-config": "1.0.4",
     "js2me-exports-post-build-script": "2.0.10",
     "rimraf": "6.0.1",
+    "prettier": "3.3.3",
     "typescript": "5.6.2"
   }
 }

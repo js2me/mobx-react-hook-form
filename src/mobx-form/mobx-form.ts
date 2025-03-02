@@ -1,16 +1,34 @@
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, makeObservable, observable, reaction } from 'mobx';
+import {
+  action,
+  makeObservable,
+  observable,
+  reaction,
+  runInAction,
+} from 'mobx';
 import {
   DeepPartial,
   FormState,
   SubmitErrorHandler,
   SubmitHandler,
   UseFormProps,
-  UseFormReturn,
+  createFormControl,
 } from 'react-hook-form';
 import type { AnyObject, Maybe } from 'yummies/utils/types';
 
-import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
+import { MobxFormParams } from './mobx-form.types';
+
+const dependsOn = {
+  isDirty: true,
+  isLoading: true,
+  isValidating: true,
+  isValid: true,
+
+  dirtyFields: true,
+  touchedFields: true,
+  validatingFields: true,
+  errors: true,
+};
 
 export class MobxForm<
   TFieldValues extends AnyObject,
@@ -25,22 +43,6 @@ export class MobxForm<
    */
   params: UseFormProps<TFieldValues, TContext>;
 
-  protected handleSubmit(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ...args: Parameters<SubmitHandler<TFieldOutputValues>>
-  ): void | Promise<void> {
-    this.config.onSubmit?.(...args);
-    // used to override
-  }
-
-  protected handleSubmitFailed(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ...args: Parameters<SubmitErrorHandler<TFieldValues>>
-  ): void | Promise<void> {
-    this.config.onSubmitFailed?.(...args);
-    // used to override
-  }
-
   protected handleReset() {
     this.config.onReset?.();
     // used to override
@@ -49,7 +51,9 @@ export class MobxForm<
   /**
    * Original react-hook-form form
    */
-  form: Maybe<UseFormReturn<TFieldValues, TContext, TFieldOutputValues>>;
+  private instance: Maybe<
+    ReturnType<typeof createFormControl<TFieldValues, TContext>>
+  >;
 
   /**
    * form state received from form.formState
@@ -60,6 +64,8 @@ export class MobxForm<
    * Raw data received from form.getValues()
    */
   data: Maybe<DeepPartial<TFieldValues>>;
+
+  onSubmit: (event?: any) => Promise<void>;
 
   protected isConnected = false;
 
@@ -75,7 +81,7 @@ export class MobxForm<
     }
 
     this.abortController.signal.addEventListener('abort', () => {
-      this.form = null;
+      this.instance = null;
       this.data = null;
     });
 
@@ -101,9 +107,29 @@ export class MobxForm<
     observable.deep(this, 'state');
     observable.deep(this, 'data');
     observable.ref(this, 'params');
+    observable.ref(this, 'instance');
     action.bound(this, 'setParams');
     action.bound(this, 'updateParams');
     action.bound(this, 'syncForm');
+
+    this.instance = createFormControl<TFieldValues, any>(config);
+
+    this.onSubmit = this.instance?.handleSubmit(
+      this.handleSubmit.bind(this) as any,
+      this.handleSubmitFailed.bind(this) as any,
+    );
+
+    /**
+     *
+     *
+     * Subscribes
+     *
+     *
+     */
+    this.instance.subscribe({
+      formState: dependsOn,
+      callback: (formState) => this.syncForm(formState, formState.values),
+    });
 
     makeObservable(this);
 
@@ -120,6 +146,37 @@ export class MobxForm<
     }
   }
 
+  protected handleSubmit(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ...args: Parameters<SubmitHandler<TFieldOutputValues>>
+  ): void | Promise<void> {
+    this.config.onSubmit?.(...args);
+    // used to override
+  }
+
+  protected handleSubmitFailed(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ...args: Parameters<SubmitErrorHandler<TFieldValues>>
+  ): void | Promise<void> {
+    this.config.onSubmitFailed?.(...args);
+    // used to override
+  }
+
+  protected syncForm(
+    formState: Partial<FormState<TFieldValues>>,
+    data?: DeepPartial<TFieldValues> | TFieldValues,
+  ) {
+    runInAction(() => {
+      Object.getOwnPropertyNames(formState).forEach((key) => {
+        // @ts-expect-error kkkk
+        this.state[key] = formState[key];
+      });
+      if (this.data) {
+        this.data = data as any;
+      }
+    });
+  }
+
   /**
    * Allows to modify real react-hook-form useForm() payload
    */
@@ -134,70 +191,14 @@ export class MobxForm<
     this.setParams({ ...this.params, ...params });
   }
 
-  protected syncForm(
-    formResult: UseFormReturn<TFieldValues, TContext, TFieldOutputValues>,
-    data: DeepPartial<TFieldValues> = formResult.getValues() as any,
-  ) {
-    this.form = formResult;
-    this.state = formResult.formState;
-    this.data = data;
-  }
-
-  /**
-   * Needed to connect real react-hook-form to this mobx wrapper
-   *
-   * This is used in useMobxForm
-   */
-  protected connect(
-    formResult: UseFormReturn<TFieldValues, TContext, TFieldOutputValues>,
-  ): ConnectedMobxForm<TFieldValues, TContext, TFieldOutputValues> {
-    if (!this.isConnected) {
-      this.isConnected = true;
-
-      this.syncForm(formResult);
-
-      const formWatchSubscription = formResult.watch((values) => {
-        this.syncForm(formResult, values);
-      });
-
-      this.abortController.signal.addEventListener(
-        'abort',
-        formWatchSubscription.unsubscribe,
-      );
-    }
-
-    return {
-      ...formResult,
-      onReset: () => this.handleReset(),
-      onSubmit: formResult.handleSubmit(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        (...args) => this.handleSubmit(...(args as any[])),
-        (...args) => this.handleSubmitFailed(...args),
-      ),
-      handleSubmit: (onValid, onInvalid) => {
-        return formResult.handleSubmit(
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          async (...args) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            await this.handleSubmit(...(args as any[]));
-            await onValid(...args);
-          },
-          async (...args) => {
-            await this.handleSubmitFailed(...args);
-            await onInvalid?.(...args);
-          },
-        );
-      },
-    };
+  destroy() {
+    this.abortController.abort();
   }
 
   /**
    * @deprecated use destroy();
    */
   dispose(): void {
-    this.abortController.abort();
+    this.destroy();
   }
 }
