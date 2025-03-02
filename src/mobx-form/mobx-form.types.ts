@@ -52,7 +52,8 @@ export interface MobxFormParams<
 export interface ConnectedMobxForm<
   TFieldValues extends AnyObject,
   TContext = any,
-> extends UseFormReturn<TFieldValues, TContext> {
+  TFieldOutputValues extends AnyObject = TFieldValues,
+> extends UseFormReturn<TFieldValues, TContext, TFieldOutputValues> {
   /**
    * Handler to reset the form.
    */
