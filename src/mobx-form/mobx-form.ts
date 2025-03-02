@@ -63,6 +63,8 @@ export class MobxForm<
 
   protected isConnected = false;
 
+  private stateKeys: string[];
+
   constructor(
     private config: MobxFormParams<TFieldValues, TContext, TFieldOutputValues>,
   ) {
@@ -96,9 +98,11 @@ export class MobxForm<
       validatingFields: {},
     };
 
+    this.stateKeys = Object.keys(this.state);
+
     this.params = config;
 
-    Object.keys(this.state).forEach((key) => {
+    this.stateKeys.forEach((key) => {
       observable.deep(this.state, key);
     });
     observable.deep(this, 'data');
@@ -141,7 +145,7 @@ export class MobxForm<
     data: DeepPartial<TFieldValues> = formResult.getValues() as any,
   ) {
     this.form = formResult;
-    Object.keys(formResult.formState).forEach((key) => {
+    this.stateKeys.forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       this.state[key] = formResult.formState[key];
