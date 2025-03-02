@@ -164,7 +164,7 @@ export class MobxForm<
     data?: DeepPartial<TFieldValues> | TFieldValues,
   ) {
     runInAction(() => {
-      Object.assign(this.state, formState)
+      Object.assign(this.state, formState);
       if (this.data) {
         this.data = data as any;
       }
