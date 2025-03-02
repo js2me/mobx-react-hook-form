@@ -139,7 +139,7 @@ export class MobxForm<
     data: DeepPartial<TFieldValues> = formResult.getValues() as any,
   ) {
     this.form = formResult;
-    this.state = { ...formResult.formState };
+    this.state = formResult.formState;
     this.data = data;
   }
 
