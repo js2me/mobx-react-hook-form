@@ -10,7 +10,7 @@ import {
 } from 'react-hook-form';
 import type { AnyObject, Maybe } from 'yummies/utils/types';
 
-import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types';
+import { ConnectedMobxForm, MobxFormParams } from './mobx-form.types.js';
 
 export class MobxForm<
   TFieldValues extends AnyObject,
@@ -177,8 +177,6 @@ export class MobxForm<
       ),
       handleSubmit: (onValid, onInvalid) => {
         return formResult.handleSubmit(
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
           async (...args) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error

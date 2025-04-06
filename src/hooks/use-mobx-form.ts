@@ -5,7 +5,7 @@ import {
   ExtractFormContext,
   ExtractFormFieldValues,
   MobxForm,
-} from '../mobx-form';
+} from '../mobx-form/index.js';
 
 export const useMobxForm = <T extends MobxForm<any, any, any>>(
   mobxForm: T,

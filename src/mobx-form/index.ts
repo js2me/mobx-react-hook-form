@@ -1,2 +1,2 @@
-export * from './mobx-form';
-export * from './mobx-form.types';
+export * from './mobx-form.js';
+export * from './mobx-form.types.js';

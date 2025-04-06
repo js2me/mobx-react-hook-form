@@ -1,1 +1,1 @@
-export * from './use-mobx-form';
+export * from './use-mobx-form.js';
