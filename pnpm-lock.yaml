@@ -27,8 +27,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       react-hook-form:
-        specifier: ^7.55.0
-        version: 7.55.0(react@18.3.1)
+        specifier: ^7.56.1
+        version: 7.56.1(react@18.3.1)
       yummies:
         specifier: ^3.0.39
         version: 3.0.39
@@ -43,8 +43,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(eslint@8.57.1)(prettier@3.5.3)(typescript@5.8.3)
       js2me-exports-post-build-script:
-        specifier: ^2.0.18
-        version: 2.0.18
+        specifier: ^3.0.1
+        version: 3.0.1
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1799,8 +1799,8 @@ packages:
       eslint: ^8.57.0
       prettier: ^3.3.3
 
-  js2me-exports-post-build-script@2.0.18:
-    resolution: {integrity: sha512-gpweGPEJwXwysYD0CQFRGkIPgl2NHnD8qSqSSpTLQihNV2KGLpuTHUjiGdMLzZYnrlpSDSCQoHfKj6ZsYNmigg==}
+  js2me-exports-post-build-script@3.0.1:
+    resolution: {integrity: sha512-8qCSWEUEKSTG2wPXOhgajT2R0FiOJMicmu+c3gzliAEvuiL5nZOAxo0EFyHjzk9xHwJar9wMBsjS1sS0kUTs6g==}
 
   jsesc@0.5.0:
     resolution: {integrity: sha512-uZz5UnB7u4T9LvwmFqXii7pZSouaRPorGs5who1Ip7VO0wxanFvBL7GkM6dTHlgX+jhBApRetaWpnDabOeTcnA==}
@@ -2098,8 +2098,8 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-hook-form@7.55.0:
-    resolution: {integrity: sha512-XRnjsH3GVMQz1moZTW53MxfoWN7aDpUg/GpVNc4A3eXRVNdGXfbzJ4vM4aLQ8g6XCUh1nIbx70aaNCl7kxnjog==}
+  react-hook-form@7.56.1:
+    resolution: {integrity: sha512-qWAVokhSpshhcEuQDSANHx3jiAEFzu2HAaaQIzi/r9FNPm1ioAvuJSD4EuZzWd7Al7nTRKcKPnBKO7sRn+zavQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -4690,7 +4690,7 @@ snapshots:
       - supports-color
       - typescript
 
-  js2me-exports-post-build-script@2.0.18:
+  js2me-exports-post-build-script@3.0.1:
     dependencies:
       simple-git: 3.27.0
     transitivePeerDependencies:
@@ -4953,7 +4953,7 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-hook-form@7.55.0(react@18.3.1):
+  react-hook-form@7.56.1(react@18.3.1):
     dependencies:
       react: 18.3.1
 

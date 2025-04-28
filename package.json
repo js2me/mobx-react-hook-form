@@ -7,19 +7,30 @@
     "check": "eslint . --fix",
     "prebuild": "npm run clean && npm run check",
     "build": "tsc && node ./post-build.mjs",
+    "pub": "PUBLISH=true pnpm run build",
+    "pub:next": "PUBLISH=true PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build",
     "pub:patch": "PUBLISH=true PUBLISH_VERSION=patch pnpm run build",
     "pub:minor": "PUBLISH=true PUBLISH_VERSION=minor pnpm run build",
-    "pub:major": "PUBLISH=true PUBLISH_VERSION=major pnpm run build"
+    "pub:major": "PUBLISH=true PUBLISH_VERSION=major pnpm run build",
+    "pub:patch:next": "PUBLISH=true PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build"
   },
   "type": "module",
   "keywords": [],
   "author": "js2me",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/js2me/mobx-react-hook-form/issues"
+  },
+  "homepage": "https://github.com/js2me/mobx-react-hook-form",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/js2me/mobx-react-hook-form"
+  },
   "peerDependencies": {
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
     "react": "^18.3.1",
-    "react-hook-form": "^7.55.0"
+    "react-hook-form": "^7.56.1"
   },
   "dependencies": {
     "disposer-util": "^2.0.0",
@@ -31,7 +42,7 @@
     "@types/lodash-es": "^4.17.12",
     "eslint": "^8.57.1",
     "js2me-eslint-config": "^1.0.7",
-    "js2me-exports-post-build-script": "^2.0.18",
+    "js2me-exports-post-build-script": "^3.0.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
   }

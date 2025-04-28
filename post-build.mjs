@@ -6,15 +6,17 @@ postBuildScript({
   srcDirName: 'src',
   filesToCopy: ['LICENSE', 'README.md'],
   updateVersion: process.env.PUBLISH_VERSION,
-  onPackageVersionChanged: (nextVersion, currVersion) => {
+  onDone: (versionsDiff, _, packageJson) => {
     if (process.env.PUBLISH) {
       publishScript({
-        nextVersion,
-        currVersion,
-        publishCommand: 'pnpm publish',
+        nextVersion: versionsDiff?.next ?? packageJson.version,
+        currVersion: versionsDiff?.current,
+        force: process.env.PUBLISH_FORCE === 'true',
+        packageManager: 'pnpm',
+        tag: process.env.PUBLISH_TAG,
         commitAllCurrentChanges: true,
         createTag: true,
-        githubRepoLink: 'https://github.com/js2me/mobx-react-hook-form',
+        githubRepoLink: packageJson.homepage,
         cleanupCommand: 'pnpm clean', 
       })
     }
