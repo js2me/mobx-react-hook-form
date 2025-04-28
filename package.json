@@ -12,7 +12,7 @@
     "pub:patch": "PUBLISH=true PUBLISH_VERSION=patch pnpm run build",
     "pub:minor": "PUBLISH=true PUBLISH_VERSION=minor pnpm run build",
     "pub:major": "PUBLISH=true PUBLISH_VERSION=major pnpm run build",
-    "pub:patch:next": "PUBLISH=true PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build"
+    "pub:patch:next": "PUBLISH=true PUBLISH_VERSION=patch PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build"
   },
   "type": "module",
   "keywords": [],
