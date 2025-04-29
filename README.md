@@ -39,11 +39,8 @@ class YourVM {
 
 
 const YourView = () => {
-  const form = useMobxForm(yourVM.form)
-
-
   return (
-    <form onSubmit={form.onSubmit} onReset={form.onReset}>
+    <form onSubmit={yourVM.form.submit} onReset={yourVM.form.reset}>
       <Controller control={form.control} name={'username'} render={...} />
     </form>
   )

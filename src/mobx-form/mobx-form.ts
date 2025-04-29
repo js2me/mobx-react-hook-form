@@ -1,91 +1,300 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, computed, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
+import { BaseSyntheticEvent } from 'react';
 import {
+  Control,
   createFormControl,
+  DeepMap,
+  DeepPartial,
+  FieldErrors,
   FieldValues,
-  SubmitErrorHandler,
-  SubmitHandler,
-  UseFormProps,
+  FormState,
+  UseFormClearErrors,
+  UseFormRegister,
+  UseFormReset,
+  UseFormResetField,
+  UseFormSetError,
+  UseFormSetFocus,
+  UseFormTrigger,
+  UseFormUnregister,
 } from 'react-hook-form';
 
-import { MobxFormState, MobxFormStateReadonly } from './mobx-form-state.js';
 import { MobxFormParams } from './mobx-form.types.js';
+
+type FormFullState<TFieldValues extends FieldValues> =
+  FormState<TFieldValues> & {
+    values: TFieldValues;
+  };
 
 export class MobxForm<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
   TTransformedValues = TFieldValues,
-> {
-  protected abortController: AbortController;
+> implements FormFullState<TFieldValues>
+{
+  values!: TFieldValues;
+  isDirty: boolean = false;
+  isLoading: boolean = false;
+  isSubmitted: boolean = false;
+  isSubmitSuccessful: boolean = false;
+  isSubmitting: boolean = false;
+  isValidating: boolean = false;
+  isValid: boolean = false;
+  disabled: boolean = false;
+  submitCount: number = 0;
+  defaultValues: Readonly<DeepPartial<TFieldValues>> | undefined;
+  dirtyFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>> =
+    {};
+  touchedFields: Partial<
+    Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>
+  > = {};
+  validatingFields: Partial<
+    Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>
+  > = {};
+  errors: FieldErrors<TFieldValues> = {};
+  isReady: boolean = false;
 
   /**
-   * Real react-hook-form params
-   * Needed to connect real react-hook-form to this mobx wrapper
+   * Set an error for the field. When set an error which is not associated to a field then manual `clearErrors` invoke is required.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/seterror) • [Demo](https://codesandbox.io/s/react-hook-form-v7-ts-seterror-nfxxu) • [Video](https://www.youtube.com/watch?v=raMqvE0YyIY)
+   *
+   * @param name - the path name to the form field value.
+   * @param error - an error object which contains type and optional message
+   * @param options - whether or not to focus on the field
+   *
+   * @example
+   * ```tsx
+   * // when the error is not associated with any fields, `clearError` will need to invoke to clear the error
+   * const onSubmit = () => setError("serverError", { type: "server", message: "Error occurred"})
+   *
+   * <button onClick={() => setError("name", { type: "min" })} />
+   *
+   * // focus on the input after setting the error
+   * <button onClick={() => setError("name", { type: "max" }, { shouldFocus: true })} />
+   * ```
    */
-  params: UseFormProps<TFieldValues, TContext, TTransformedValues>;
+  setError: UseFormSetError<TFieldValues>;
 
-  protected handleSubmit(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ...args: Parameters<SubmitHandler<TTransformedValues>>
-  ): void | Promise<void> {
-    this.config.onSubmit?.(...args);
-    // used to override
-  }
+  /**
+   * Clear the entire form errors.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/clearerrors) • [Demo](https://codesandbox.io/s/react-hook-form-v7-ts-clearerrors-w3ymx)
+   *
+   * @param name - the path name to the form field value.
+   *
+   * @example
+   * Clear all errors
+   * ```tsx
+   * clearErrors(); // clear the entire form error
+   * clearErrors(["name", "name1"]) // clear an array of fields' error
+   * clearErrors("name2"); // clear a single field error
+   * ```
+   */
+  clearErrors: UseFormClearErrors<TFieldValues>;
 
-  protected handleSubmitFailed(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ...args: Parameters<SubmitErrorHandler<TFieldValues>>
-  ): void | Promise<void> {
-    this.config.onSubmitFailed?.(...args);
-    // used to override
-  }
+  /**
+   * Trigger field or form validation
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/trigger) • [Demo](https://codesandbox.io/s/react-hook-form-v7-ts-triggervalidation-forked-xs7hl) • [Video](https://www.youtube.com/watch?v=-bcyJCDjksE)
+   *
+   * @param name - provide empty argument will trigger the entire form validation, an array of field names will validate an array of fields, and a single field name will only trigger that field's validation.
+   * @param options - should focus on the error field
+   *
+   * @returns validation result
+   *
+   * @example
+   * ```tsx
+   * useEffect(() => {
+   *   trigger();
+   * }, [trigger])
+   *
+   * <button onClick={async () => {
+   *   const result = await trigger(); // result will be a boolean value
+   * }}>
+   *  trigger
+   *  </button>
+   * ```
+   */
+  trigger: UseFormTrigger<TFieldValues>;
 
-  protected handleReset() {
-    this.config.onReset?.();
-    // used to override
-  }
+  /**
+   * Reset a field state and reference.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/resetfield) • [Demo](https://codesandbox.io/s/priceless-firefly-d0kuv) • [Video](https://www.youtube.com/watch?v=IdLFcNaEFEo)
+   *
+   * @param name - the path name to the form field value.
+   * @param options - keep form state options
+   *
+   * @example
+   * ```tsx
+   * <input {...register("firstName", { required: true })} />
+   * <button type="button" onClick={() => resetField("firstName"))}>Reset</button>
+   * ```
+   */
+  resetField: UseFormResetField<TFieldValues>;
+
+  /**
+   * Unregister a field reference and remove its value.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/unregister) • [Demo](https://codesandbox.io/s/react-hook-form-unregister-4k2ey) • [Video](https://www.youtube.com/watch?v=TM99g_NW5Gk&feature=emb_imp_woyt)
+   *
+   * @param name - the path name to the form field value.
+   * @param options - keep form state options
+   *
+   * @example
+   * ```tsx
+   * register("name", { required: true })
+   *
+   * <button onClick={() => unregister("name")} />
+   * // there are various keep options to retain formState
+   * <button onClick={() => unregister("name", { keepErrors: true })} />
+   * ```
+   */
+  unregister: UseFormUnregister<TFieldValues>;
+
+  /**
+   * Form control
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/control)
+   *
+   */
+  control: Control<TFieldValues, TContext, TTransformedValues>;
+
+  /**
+   * Register field into hook form with or without the actual DOM ref. You can invoke register anywhere in the component including at `useEffect`.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/register) • [Demo](https://codesandbox.io/s/react-hook-form-register-ts-ip2j3) • [Video](https://www.youtube.com/watch?v=JFIpCoajYkA)
+   *
+   * @param name - the path name to the form field value, name is required and unique
+   * @param options - register options include validation, disabled, unregister, value as and dependent validation
+   *
+   * @returns onChange, onBlur, name, ref, and native contribute attribute if browser validation is enabled.
+   *
+   * @example
+   * ```tsx
+   * // Register HTML native input
+   * <input {...register("input")} />
+   * <select {...register("select")} />
+   *
+   * // Register options
+   * <textarea {...register("textarea", { required: "This is required.", maxLength: 20 })} />
+   * <input type="number" {...register("name2", { valueAsNumber: true })} />
+   * <input {...register("name3", { deps: ["name2"] })} />
+   *
+   * // Register custom field at useEffect
+   * useEffect(() => {
+   *   register("name4");
+   *   register("name5", { value: "hiddenValue" });
+   * }, [register])
+   *
+   * // Register without ref
+   * const { onChange, onBlur, name } = register("name6")
+   * <input onChange={onChange} onBlur={onBlur} name={name} />
+   * ```
+   */
+  register: UseFormRegister<TFieldValues>;
+
+  /**
+   * Set focus on a registered field. You can start to invoke this method after all fields are mounted to the DOM.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/setfocus) • [Demo](https://codesandbox.io/s/setfocus-rolus)
+   *
+   * @param name - the path name to the form field value.
+   * @param options - input focus behavior options
+   *
+   * @example
+   * ```tsx
+   * useEffect(() => {
+   *   setFocus("name");
+   * }, [setFocus])
+   * // shouldSelect allows to select input's content on focus
+   * <button onClick={() => setFocus("name", { shouldSelect: true })}>Focus</button>
+   * ```
+   */
+  setFocus: UseFormSetFocus<TFieldValues>;
+
+  /**
+   * Reset at the entire form state.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/reset) • [Demo](https://codesandbox.io/s/react-hook-form-reset-v7-ts-pu901) • [Video](https://www.youtube.com/watch?v=qmCLBjyPwVk)
+   *
+   * @param values - the entire form values to be reset
+   * @param keepStateOptions - keep form state options
+   *
+   * @example
+   * ```tsx
+   * useEffect(() => {
+   *   // reset the entire form after component mount or form defaultValues is ready
+   *   reset({
+   *     fieldA: "test"
+   *     fieldB: "test"
+   *   });
+   * }, [reset])
+   *
+   * // reset by combine with existing form values
+   * reset({
+   *   ...getValues(),
+   *  fieldB: "test"
+   *});
+   *
+   * // reset and keep form state
+   * reset({
+   *   ...getValues(),
+   *}, {
+   *   keepErrors: true,
+   *   keepDirty: true
+   *});
+   * ```
+   */
+  resetForm: UseFormReset<TFieldValues>;
+
+  protected abortController: AbortController;
 
   /**
    * Original react-hook-form form
    */
-  form: ReturnType<
+  originalForm: ReturnType<
     typeof createFormControl<TFieldValues, TContext, TTransformedValues>
   >;
-
-  /**
-   * form state received from form.formState
-   */
-  private _state: MobxFormState<TFieldValues>;
-
-  get state(): MobxFormStateReadonly<TFieldValues> {
-    return this._state;
-  }
-
-  /**
-   * Raw data received from form.getValues()
-   */
-  get data(): TFieldValues {
-    return this._state.values;
-  }
 
   constructor(
     private config: MobxFormParams<TFieldValues, TContext, TTransformedValues>,
   ) {
-    this.params = config;
     this.abortController = new LinkedAbortController(config.abortSignal);
 
-    this.form = createFormControl<TFieldValues, TContext, TTransformedValues>(
-      config,
-    );
-    this._state = new MobxFormState({
-      values: this.form.getValues(),
+    this.originalForm = createFormControl<
+      TFieldValues,
+      TContext,
+      TTransformedValues
+    >(config);
+
+    this.setError = this.originalForm.setError;
+    this.clearErrors = this.originalForm.clearErrors;
+    this.trigger = this.originalForm.trigger;
+    this.resetField = this.originalForm.resetField;
+    this.unregister = this.originalForm.unregister;
+    this.control = this.originalForm.control;
+    this.register = this.originalForm.register;
+    this.setFocus = this.originalForm.setFocus;
+    this.resetForm = this.originalForm.reset;
+
+    Object.assign(this, {
+      values: this.originalForm.getValues(),
       defaultValues: config.defaultValues || ({} as any),
     });
 
-    this.params = config;
-
-    const subscription = this.form.subscribe({
+    const subscription = this.originalForm.subscribe({
       formState: {
         values: true,
         errors: true,
@@ -97,43 +306,119 @@ export class MobxForm<
         validatingFields: true,
       },
       callback: (rawFormState) => {
-        this._state.update(rawFormState);
+        this.updateFormState(rawFormState);
       },
     });
+
+    observable.deep(this, 'values');
+    observable.ref(this, 'isDirty');
+    observable.ref(this, 'isLoading');
+    observable.ref(this, 'isSubmitted');
+    observable.ref(this, 'isSubmitSuccessful');
+    observable.ref(this, 'isSubmitting');
+    observable.ref(this, 'isValidating');
+    observable.ref(this, 'isValid');
+    observable.ref(this, 'disabled');
+    observable.ref(this, 'submitCount');
+    observable.ref(this, 'isReady');
+    observable.deep(this, 'defaultValues');
+    observable.deep(this, 'dirtyFields');
+    observable.deep(this, 'touchedFields');
+    observable.deep(this, 'validatingFields');
+    observable.deep(this, 'errors');
+    action(this, 'updateFormState');
+
+    observable.ref(this, 'originalForm');
+    action.bound(this, 'submit');
+    action.bound(this, 'reset');
+
+    makeObservable(this);
 
     this.abortController.signal.addEventListener('abort', () => {
       subscription();
       // @ts-ignore
-      this.form = null;
+      this.originalForm = null;
       // @ts-ignore
       this.data = null;
     });
-
-    computed.struct(this, 'data');
-    computed.struct(this, 'state');
-    observable.ref(this, 'params');
-    observable.ref(this, 'form');
-    action.bound(this, 'setParams');
-    action.bound(this, 'updateParams');
-    action.bound(this, 'syncForm');
-
-    makeObservable(this);
   }
 
   destroy(): void {
     this.abortController.abort();
   }
 
-  submit = async (event?: any) => {
-    if (this.config.onSubmit) {
-      await this.form.handleSubmit(
-        this.config.onSubmit,
-        this.config.onSubmitFailed,
-      )(event);
-    }
-  };
+  /**
+   * Method to manually submit form.
+   * Used to attach this method to <form /> element
+   *
+   * @example
+   *
+   * <form onSubmit={form.submit} />
+   */
+  submit(e?: BaseSyntheticEvent) {
+    return new Promise<TTransformedValues>((resolve, reject) => {
+      this.originalForm.handleSubmit(
+        (data, event) => {
+          this.config.onSubmit?.(data, event);
+          resolve(data);
+        },
+        (errors, event) => {
+          this.config.onSubmitFailed?.(errors, event);
+          reject(errors);
+        },
+      )(e);
+    });
+  }
 
-  reset = () => {
-    this.form.reset();
-  };
+  /**
+   * Method to manually reset all form.
+   * Used to attach this method to <form /> element
+   *
+   * @example
+   *
+   * <form onReset={form.reset} />
+   */
+  reset(e?: BaseSyntheticEvent) {
+    this.resetForm();
+    this.config.onReset?.(e);
+  }
+
+  private updateFormState({
+    values,
+    errors,
+    ...simpleProperties
+  }: Partial<FormFullState<TFieldValues>>) {
+    Object.entries(simpleProperties).forEach(([key, value]) => {
+      if (value != null) {
+        // @ts-ignore
+        this[key] = value;
+      }
+    });
+
+    if (errors) {
+      const currentErrorsSet = new Set(Object.keys(this.errors));
+      const newErrors = Object.keys(errors);
+
+      for (const errorField of newErrors) {
+        if (currentErrorsSet.has(errorField)) {
+          currentErrorsSet.delete(errorField);
+          // @ts-ignore
+          Object.assign(this.errors[errorField], errors[errorField]);
+        } else {
+          // @ts-ignore
+          this.errors[errorField] = errors[errorField];
+        }
+      }
+
+      currentErrorsSet.forEach((errorField) => {
+        // @ts-ignore
+        delete this.errors[errorField];
+      });
+    } else {
+      this.errors = {};
+    }
+
+    // @ts-ignore
+    this.values = values ?? {};
+  }
 }

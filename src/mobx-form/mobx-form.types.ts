@@ -32,16 +32,11 @@ export interface MobxFormParams<
   /**
    * Form reset handler
    */
-  onReset?: VoidFunction;
+  onReset?: (event: any) => void;
 }
 
 export type ExtractFormFieldValues<T extends AnyMobxForm> = Exclude<
-  T['params']['values'],
-  undefined | null
->;
-
-export type ExtractFormContext<T extends AnyMobxForm> = Exclude<
-  T['params']['context'],
+  T['values'],
   undefined | null
 >;
 
