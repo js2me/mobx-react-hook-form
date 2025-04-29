@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, makeObservable, observable, runInAction } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import {
   createFormControl,
   FieldValues,
-  FormState,
   SubmitErrorHandler,
   SubmitHandler,
   UseFormProps,
 } from 'react-hook-form';
-import { Maybe } from 'yummies/utils/types';
 
+import { MobxFormState, MobxFormStateReadonly } from './mobx-form-state.js';
 import { MobxFormParams } from './mobx-form.types.js';
 
 export class MobxForm<
@@ -57,16 +56,18 @@ export class MobxForm<
   /**
    * form state received from form.formState
    */
-  state: Maybe<
-    Partial<FormState<TFieldValues>> & {
-      values: TFieldValues;
-    }
-  >;
+  private _state: MobxFormState<TFieldValues>;
+
+  get state(): MobxFormStateReadonly<TFieldValues> {
+    return this._state;
+  }
 
   /**
    * Raw data received from form.getValues()
    */
-  data: TFieldValues;
+  get data(): TFieldValues {
+    return this._state.values;
+  }
 
   constructor(
     private config: MobxFormParams<TFieldValues, TContext, TTransformedValues>,
@@ -77,22 +78,26 @@ export class MobxForm<
     this.form = createFormControl<TFieldValues, TContext, TTransformedValues>(
       config,
     );
-
-    this.data = this.form.getValues();
-    this.state = null;
+    this._state = new MobxFormState({
+      values: this.form.getValues(),
+      defaultValues: config.defaultValues || ({} as any),
+    });
 
     this.params = config;
 
     const subscription = this.form.subscribe({
+      formState: {
+        values: true,
+        errors: true,
+        isValid: true,
+        isDirty: true,
+        isValidating: true,
+        dirtyFields: true,
+        touchedFields: true,
+        validatingFields: true,
+      },
       callback: (rawFormState) => {
-        runInAction(() => {
-          if (this.state) {
-            Object.assign(this.state, rawFormState);
-          } else {
-            this.state = rawFormState;
-          }
-          Object.assign(this.data, rawFormState.values);
-        });
+        this._state.update(rawFormState);
       },
     });
 
@@ -102,12 +107,10 @@ export class MobxForm<
       this.form = null;
       // @ts-ignore
       this.data = null;
-      // @ts-ignore
-      this.state = null;
     });
 
-    observable.deep(this, 'state');
-    observable.deep(this, 'data');
+    computed.struct(this, 'data');
+    computed.struct(this, 'state');
     observable.ref(this, 'params');
     observable.ref(this, 'form');
     action.bound(this, 'setParams');

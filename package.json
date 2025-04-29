@@ -7,6 +7,7 @@
     "check": "eslint . --fix",
     "prebuild": "npm run clean && npm run check",
     "build": "tsc && node ./post-build.mjs",
+    "build:watch": "npm run build && nodemon --delay 0.5 --watch src --ext ts,tsx --exec \"tsc && node ./post-build.mjs\"",
     "pub": "PUBLISH=true pnpm run build",
     "pub:next": "PUBLISH=true PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build",
     "pub:patch": "PUBLISH=true PUBLISH_VERSION=patch pnpm run build",
@@ -43,6 +44,7 @@
     "eslint": "^8.57.1",
     "js2me-eslint-config": "^1.0.7",
     "js2me-exports-post-build-script": "^3.0.1",
+    "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
   }
