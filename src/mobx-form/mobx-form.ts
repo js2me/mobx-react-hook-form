@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, makeObservable, observable } from 'mobx';
+import { action, comparer, makeObservable, observable } from 'mobx';
 import { BaseSyntheticEvent } from 'react';
 import {
   Control,
@@ -261,6 +261,8 @@ export class MobxForm<
 
   protected abortController: AbortController;
 
+  protected lastRafId: number | undefined;
+
   /**
    * Original react-hook-form form
    */
@@ -306,7 +308,18 @@ export class MobxForm<
         validatingFields: true,
       },
       callback: (rawFormState) => {
-        this.updateFormState(rawFormState);
+        if (this.config.lazyUpdates === false) {
+          this.updateFormState(rawFormState);
+        } else {
+          if (this.lastRafId !== undefined) {
+            cancelAnimationFrame(this.lastRafId);
+            this.lastRafId = undefined;
+          }
+          this.lastRafId = requestAnimationFrame(() => {
+            this.updateFormState(rawFormState);
+            this.lastRafId = undefined;
+          });
+        }
       },
     });
 
@@ -341,10 +354,6 @@ export class MobxForm<
       // @ts-ignore
       this.data = null;
     });
-  }
-
-  destroy(): void {
-    this.abortController.abort();
   }
 
   /**
@@ -395,6 +404,8 @@ export class MobxForm<
       }
     });
 
+    console.info('update form state', errors);
+
     if (errors) {
       const currentErrorsSet = new Set(Object.keys(this.errors));
       const newErrors = Object.keys(errors);
@@ -402,8 +413,12 @@ export class MobxForm<
       for (const errorField of newErrors) {
         if (currentErrorsSet.has(errorField)) {
           currentErrorsSet.delete(errorField);
-          // @ts-ignore
-          Object.assign(this.errors[errorField], errors[errorField]);
+          if (
+            !comparer.structural(this.errors[errorField], errors[errorField])
+          ) {
+            // @ts-ignore
+            Object.assign(this.errors[errorField], errors[errorField]);
+          }
         } else {
           // @ts-ignore
           this.errors[errorField] = errors[errorField];
@@ -420,5 +435,12 @@ export class MobxForm<
 
     // @ts-ignore
     this.values = values ?? {};
+  }
+
+  destroy(): void {
+    this.abortController.abort();
+    if (this.lastRafId !== undefined) {
+      cancelAnimationFrame(this.lastRafId);
+    }
   }
 }

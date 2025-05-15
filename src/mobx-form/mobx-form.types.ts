@@ -33,6 +33,11 @@ export interface MobxFormParams<
    * Form reset handler
    */
   onReset?: (event: any) => void;
+  /**
+   * lazy mobx form state updates using requestAnimationFrame
+   * @default - {true}
+   */
+  lazyUpdates?: boolean;
 }
 
 export type ExtractFormFieldValues<T extends AnyMobxForm> = Exclude<
