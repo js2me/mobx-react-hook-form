@@ -404,8 +404,6 @@ export class MobxForm<
       }
     });
 
-    console.info('update form state', errors);
-
     if (errors) {
       const currentErrorsSet = new Set(Object.keys(this.errors));
       const newErrors = Object.keys(errors);

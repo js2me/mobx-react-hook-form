@@ -5,45 +5,34 @@ Simple [react-hook-form](https://react-hook-form.com/) wrapper for [MobX](https:
 ## Usage  
 
 ```tsx
-import { reaction } from "mobx"
-import { MobxForm } from "mobx-react-hook-form"
+import { reaction } from "mobx";
+import { observer } from "mobx-react-lite";
+import { MobxForm } from "mobx-react-hook-form";
 
-class YourVM { 
-  form = new MobxForm({
-    disposer?: this.disposer,
-    resolver: valibotResolver(
-      v.object({
-        username: v.string('This field is required')
-      })
-    ),
-    onSubmit: ({ username }) => {
-      console.info("nick username", username);
-    },
-    onSubmitFailed: () => {
-      //
-    },
-    onReset: () => {
-      //
-    }
-  })
-
-  mount(){
-    reaction(
-      () => this.form.data?.username,
-      (username) => {
-        //
-      }
-    )
+const form = new MobxForm({
+  resolver: valibotResolver(
+    v.object({
+      username: v.string('This field is required')
+    })
+  ),
+  onSubmit: ({ username }) => {
+    console.info("nick username", username);
+  },
+  onSubmitFailed: () => {
+    //
+  },
+  onReset: () => {
+    //
   }
-}
+})
 
 
-const YourView = () => {
+const YourView = observer(() => {
   return (
-    <form onSubmit={yourVM.form.submit} onReset={yourVM.form.reset}>
+    <form onSubmit={form.submit} onReset={form.reset}>
       <Controller control={form.control} name={'username'} render={...} />
     </form>
   )
-}
+})
 
 ```
