@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, comparer, makeObservable, observable } from 'mobx';
+import { action, comparer, makeObservable, observable, reaction } from 'mobx';
 import { BaseSyntheticEvent } from 'react';
 import {
   Control,
   createFormControl,
   DeepMap,
   DeepPartial,
+  DefaultValues,
   FieldErrors,
   FieldValues,
   FormState,
@@ -377,6 +378,20 @@ export class MobxForm<
     observable.ref(this, 'originalForm');
     action.bound(this, 'submit');
     action.bound(this, 'reset');
+
+    reaction(
+      () => this.defaultValues,
+      (newDefaultValues) => {
+        if (newDefaultValues) {
+          this.resetForm(
+            newDefaultValues as unknown as DefaultValues<TFieldValues>,
+          );
+        }
+      },
+      {
+        signal: this.abortController.signal,
+      },
+    );
 
     makeObservable(this);
 
