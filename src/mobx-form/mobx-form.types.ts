@@ -1,4 +1,5 @@
 import {
+  DeepPartial,
   FieldValues,
   SubmitErrorHandler,
   SubmitHandler,
@@ -16,7 +17,14 @@ export interface MobxFormParams<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
   TTransformedValues = TFieldValues,
-> extends UseFormProps<TFieldValues, TContext, TTransformedValues> {
+> extends Omit<
+    UseFormProps<TFieldValues, TContext, TTransformedValues>,
+    'defaultValues'
+  > {
+  /**
+   * Async is not supported
+   */
+  defaultValues?: DeepPartial<TFieldValues>;
   /**
    * Abort signal for mobx form
    */

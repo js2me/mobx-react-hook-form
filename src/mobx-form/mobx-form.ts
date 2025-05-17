@@ -45,7 +45,11 @@ export class MobxForm<
   isValid: boolean = false;
   disabled: boolean = false;
   submitCount: number = 0;
-  defaultValues: Readonly<DeepPartial<TFieldValues>> | undefined;
+  /**
+   * deep observable default values
+   * any updates -> reset form
+   */
+  defaultValues!: DeepPartial<TFieldValues>;
   dirtyFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>> =
     {};
   touchedFields: Partial<
@@ -312,7 +316,12 @@ export class MobxForm<
       TFieldValues,
       TContext,
       TTransformedValues
-    >(config);
+    >({
+      ...config,
+      defaultValues: {
+        ...config.defaultValues,
+      } as DefaultValues<TFieldValues>,
+    });
 
     this.setError = this.originalForm.setError;
     this.clearErrors = this.originalForm.clearErrors;
@@ -327,7 +336,9 @@ export class MobxForm<
 
     Object.assign(this, {
       values: this.originalForm.getValues(),
-      defaultValues: config.defaultValues || ({} as any),
+      defaultValues: config.defaultValues
+        ? { ...config.defaultValues }
+        : ({} as any),
     });
 
     const subscription = this.originalForm.subscribe({
@@ -382,11 +393,9 @@ export class MobxForm<
     reaction(
       () => this.defaultValues,
       (newDefaultValues) => {
-        if (newDefaultValues) {
-          this.resetForm(
-            newDefaultValues as unknown as DefaultValues<TFieldValues>,
-          );
-        }
+        this.resetForm(
+          newDefaultValues as unknown as DefaultValues<TFieldValues>,
+        );
       },
       {
         signal: this.abortController.signal,

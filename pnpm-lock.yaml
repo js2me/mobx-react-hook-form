@@ -33,8 +33,8 @@ importers:
         specifier: ^7.56.4
         version: 7.56.4(react@18.3.1)
       yummies:
-        specifier: ^3.0.39
-        version: 3.0.39
+        specifier: ^3.2.3
+        version: 3.2.3
     devDependencies:
       '@types/lodash-es':
         specifier: ^4.17.12
@@ -2585,8 +2585,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  yummies@3.0.39:
-    resolution: {integrity: sha512-2J4GmO0sV9u+frcT+uDvT4B/4pQnVsQnPiieIqpb13f9IfQUMM1Y0j4CnxlLhAb2n96OgtpWpoEqB0C9pMcrPw==}
+  yummies@3.2.3:
+    resolution: {integrity: sha512-k7WHTSmjN68jGjPKrAjtcOdwAtf/wYNB4npQN2jsgiL9mSYoYzwPh3hSqqWNn1S9O6jrAYlTICoKhoQP1QYnfg==}
 
 snapshots:
 
@@ -5627,13 +5627,11 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  yummies@3.0.39:
+  yummies@3.2.3:
     dependencies:
       '@types/insane': 1.0.0
-      '@types/lodash-es': 4.17.12
       clsx: 2.1.1
       dayjs: 1.11.13
       insane: 2.6.2
-      lodash-es: 4.17.21
       nanoid: 5.1.5
       tailwind-merge: 2.6.0
