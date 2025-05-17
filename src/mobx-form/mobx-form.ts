@@ -16,6 +16,7 @@ import {
   UseFormResetField,
   UseFormSetError,
   UseFormSetFocus,
+  UseFormSetValue,
   UseFormTrigger,
   UseFormUnregister,
 } from 'react-hook-form';
@@ -224,6 +225,37 @@ export class MobxForm<
   setFocus: UseFormSetFocus<TFieldValues>;
 
   /**
+   * Set a single field value, or a group of fields value.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/setvalue) • [Demo](https://codesandbox.io/s/react-hook-form-v7-ts-setvalue-8z9hx) • [Video](https://www.youtube.com/watch?v=qpv51sCH3fI)
+   *
+   * @param name - the path name to the form field value.
+   * @param value - field value
+   * @param options - should validate or update form state
+   *
+   * @example
+   * ```tsx
+   * // Update a single field
+   * setValue('name', 'value', {
+   *   shouldValidate: true, // trigger validation
+   *   shouldTouch: true, // update touched fields form state
+   *   shouldDirty: true, // update dirty and dirty fields form state
+   * });
+   *
+   * // Update a group fields
+   * setValue('root', {
+   *   a: 'test', // setValue('root.a', 'data')
+   *   b: 'test1', // setValue('root.b', 'data')
+   * });
+   *
+   * // Update a nested object field
+   * setValue('select', { label: 'test', value: 'Test' });
+   * ```
+   */
+  setValue: UseFormSetValue<TFieldValues>;
+
+  /**
    * Reset at the entire form state.
    *
    * @remarks
@@ -289,6 +321,7 @@ export class MobxForm<
     this.control = this.originalForm.control;
     this.register = this.originalForm.register;
     this.setFocus = this.originalForm.setFocus;
+    this.setValue = this.originalForm.setValue;
     this.resetForm = this.originalForm.reset;
 
     Object.assign(this, {

@@ -30,8 +30,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       react-hook-form:
-        specifier: ^7.56.1
-        version: 7.56.1(react@18.3.1)
+        specifier: ^7.56.4
+        version: 7.56.4(react@18.3.1)
       yummies:
         specifier: ^3.0.39
         version: 3.0.39
@@ -2153,8 +2153,8 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-hook-form@7.56.1:
-    resolution: {integrity: sha512-qWAVokhSpshhcEuQDSANHx3jiAEFzu2HAaaQIzi/r9FNPm1ioAvuJSD4EuZzWd7Al7nTRKcKPnBKO7sRn+zavQ==}
+  react-hook-form@7.56.4:
+    resolution: {integrity: sha512-Rob7Ftz2vyZ/ZGsQZPaRdIefkgOSrQSPXfqBdvOPwJfoGnjwRJUs7EM7Kc1mcoDv3NOtqBzPGbcMB8CGn9CKgw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -5085,7 +5085,7 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-hook-form@7.56.1(react@18.3.1):
+  react-hook-form@7.56.4(react@18.3.1):
     dependencies:
       react: 18.3.1
 
