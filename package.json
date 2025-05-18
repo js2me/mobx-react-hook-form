@@ -1,6 +1,6 @@
 {
   "name": "mobx-react-hook-form",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "",
   "scripts": {
     "clean": "rimraf dist",
