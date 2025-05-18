@@ -49,7 +49,7 @@ export class MobxForm<
    * deep observable default values
    * any updates -> reset form
    */
-  defaultValues!: DeepPartial<TFieldValues>;
+  defaultValues!: DefaultValues<TFieldValues>;
   dirtyFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>> =
     {};
   touchedFields: Partial<
@@ -393,9 +393,7 @@ export class MobxForm<
     reaction(
       () => this.defaultValues,
       (newDefaultValues) => {
-        this.resetForm(
-          newDefaultValues as unknown as DefaultValues<TFieldValues>,
-        );
+        this.resetForm(newDefaultValues);
       },
       {
         signal: this.abortController.signal,
