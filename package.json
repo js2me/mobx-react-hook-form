@@ -3,6 +3,7 @@
   "version": "3.1.1",
   "description": "",
   "scripts": {
+    "postinstall": "pnpm dev:install-hooks",
     "clean": "rimraf dist",
     "check": "eslint . --fix",
     "prebuild": "npm run clean && npm run check",
@@ -13,7 +14,8 @@
     "pub:patch": "PUBLISH=true PUBLISH_VERSION=patch pnpm run build",
     "pub:minor": "PUBLISH=true PUBLISH_VERSION=minor pnpm run build",
     "pub:major": "PUBLISH=true PUBLISH_VERSION=major pnpm run build",
-    "pub:patch:next": "PUBLISH=true PUBLISH_VERSION=patch PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build"
+    "pub:patch:next": "PUBLISH=true PUBLISH_VERSION=patch PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build",
+    "dev:install-hooks": "if [ -z \"$CI\" ]; then lefthook install; fi"
   },
   "type": "module",
   "keywords": [],
@@ -34,17 +36,19 @@
     "react-hook-form": "^7.56.4"
   },
   "dependencies": {
-    "disposer-util": "^2.0.0",
     "@types/react": "^18.3.1",
+    "disposer-util": "^2.0.0",
     "linked-abort-controller": "^1.1.0",
     "lodash-es": "^4.17.21",
     "yummies": "^3.2.9"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12",
+    "commitfmt": "^1.0.0",
     "eslint": "^8.57.1",
     "js2me-eslint-config": "^1.0.7",
-    "js2me-exports-post-build-script": "^3.0.1",
+    "js2me-exports-post-build-script": "^3.0.2",
+    "lefthook": "^1.11.13",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
