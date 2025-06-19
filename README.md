@@ -7,9 +7,9 @@ Simple [react-hook-form](https://react-hook-form.com/) wrapper for [MobX](https:
 ```tsx
 import { reaction } from "mobx";
 import { observer } from "mobx-react-lite";
-import { MobxForm } from "mobx-react-hook-form";
+import { Form } from "mobx-react-hook-form";
 
-const form = new MobxForm({
+const form = new Form({
   resolver: valibotResolver(
     v.object({
       username: v.string('This field is required')
