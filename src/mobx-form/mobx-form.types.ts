@@ -6,14 +6,18 @@ import {
   UseFormProps,
 } from 'react-hook-form';
 
-import type { MobxForm } from './mobx-form.js';
+import type { Form } from './mobx-form.js';
 
-export type AnyMobxForm = MobxForm<any, any, any>;
+export type AnyForm = Form<any, any, any>;
+/**
+ * @remarks ⚠️ use `AnyForm`. This export will be removed in next major release
+ */
+export type AnyMobxForm = AnyForm;
 
 /**
- * Additional options for {@link MobxForm} constructor
+ * Additional options for {@link Form} constructor
  */
-export interface MobxFormParams<
+export interface FormParams<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
   TTransformedValues = TFieldValues,
@@ -48,12 +52,21 @@ export interface MobxFormParams<
   lazyUpdates?: boolean;
 }
 
-export type ExtractFormFieldValues<T extends AnyMobxForm> = Exclude<
+/**
+ * @remarks ⚠️ use `FormParams`. This export will be removed in next major release
+ */
+export type MobxFormParams<
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = any,
+  TTransformedValues = TFieldValues,
+> = FormParams<TFieldValues, TContext, TTransformedValues>;
+
+export type ExtractFormFieldValues<T extends AnyForm> = Exclude<
   T['values'],
   undefined | null
 >;
 
-export type ExtractFormFieldOutputValues<T extends AnyMobxForm> =
-  T extends MobxForm<any, any, infer TFieldOutputValues>
+export type ExtractFormFieldOutputValues<T extends AnyForm> =
+  T extends Form<any, any, infer TFieldOutputValues>
     ? TFieldOutputValues
     : never;

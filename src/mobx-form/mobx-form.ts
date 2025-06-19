@@ -22,14 +22,14 @@ import {
   UseFormUnregister,
 } from 'react-hook-form';
 
-import { MobxFormParams } from './mobx-form.types.js';
+import { FormParams } from './mobx-form.types.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
   FormState<TFieldValues> & {
     values: TFieldValues;
   };
 
-export class MobxForm<
+export class Form<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
   TTransformedValues = TFieldValues,
@@ -308,7 +308,7 @@ export class MobxForm<
   >;
 
   constructor(
-    private config: MobxFormParams<TFieldValues, TContext, TTransformedValues>,
+    private config: FormParams<TFieldValues, TContext, TTransformedValues>,
   ) {
     this.abortController = new LinkedAbortController(config.abortSignal);
 
@@ -487,3 +487,12 @@ export class MobxForm<
     }
   }
 }
+
+/**
+ * @remarks ⚠️ use `Form`. This export will be removed in next major release
+ */
+export class MobxForm<
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = any,
+  TTransformedValues = TFieldValues,
+> extends Form<TFieldValues, TContext, TTransformedValues> {}
