@@ -489,7 +489,7 @@ export class Form<
 }
 
 /**
- * @remarks ⚠️ use `Form`. This export will be removed in next major release
+ * @deprecated ⚠️ use `Form`. This export will be removed in next major release
  */
 export class MobxForm<
   TFieldValues extends FieldValues = FieldValues,

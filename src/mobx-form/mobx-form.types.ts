@@ -10,7 +10,7 @@ import type { Form } from './mobx-form.js';
 
 export type AnyForm = Form<any, any, any>;
 /**
- * @remarks ⚠️ use `AnyForm`. This export will be removed in next major release
+ * @deprecated ⚠️ use `AnyForm`. This export will be removed in next major release
  */
 export type AnyMobxForm = AnyForm;
 
@@ -53,7 +53,7 @@ export interface FormParams<
 }
 
 /**
- * @remarks ⚠️ use `FormParams`. This export will be removed in next major release
+ * @deprecated ⚠️ use `FormParams`. This export will be removed in next major release
  */
 export type MobxFormParams<
   TFieldValues extends FieldValues = FieldValues,
