@@ -11,6 +11,8 @@ import {
   FieldErrors,
   FieldValues,
   FormState,
+  get,
+  set,
   UseFormClearErrors,
   UseFormRegister,
   UseFormReset,
@@ -323,22 +325,34 @@ export class Form<
       } as DefaultValues<TFieldValues>,
     });
 
+    const defaultValues = config.defaultValues
+      ? { ...config.defaultValues }
+      : ({} as any);
+
     this.setError = this.originalForm.setError;
     this.clearErrors = this.originalForm.clearErrors;
     this.trigger = this.originalForm.trigger;
-    this.resetField = this.originalForm.resetField;
+    this.resetField = action((...args) => {
+      set(this.values, args[0], get(this.defaultValues, args[0]));
+      return this.originalForm.resetField(...args);
+    });
     this.unregister = this.originalForm.unregister;
     this.control = this.originalForm.control;
     this.register = this.originalForm.register;
     this.setFocus = this.originalForm.setFocus;
-    this.setValue = this.originalForm.setValue;
-    this.resetForm = this.originalForm.reset;
+    this.setValue = action((...args) => {
+      set(this.values, args[0], args[1]);
+      return this.originalForm.setValue(...args);
+    });
+    this.resetForm = action((...args) => {
+      // @ts-ignore
+      this.values = structuredClone(args[0] ?? this.defaultValues);
+      return this.originalForm.reset(...args);
+    });
 
     Object.assign(this, {
       values: this.originalForm.getValues(),
-      defaultValues: config.defaultValues
-        ? { ...config.defaultValues }
-        : ({} as any),
+      defaultValues,
     });
 
     const subscription = this.originalForm.subscribe({
