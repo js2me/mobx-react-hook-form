@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, comparer, makeObservable, observable } from 'mobx';
+import {
+  action,
+  comparer,
+  isObservableObject,
+  makeObservable,
+  observable,
+  toJS,
+} from 'mobx';
 import { BaseSyntheticEvent } from 'react';
 import {
   Control,
@@ -345,8 +352,16 @@ export class Form<
       return this.originalForm.setValue(...args);
     });
     this.resetForm = action((...args) => {
+      let defaultValues = args[0] ?? this.defaultValues;
+
+      if (isObservableObject(defaultValues)) {
+        defaultValues = toJS(defaultValues);
+      } else {
+        defaultValues = structuredClone(defaultValues);
+      }
+
       // @ts-ignore
-      this.values = structuredClone(args[0] ?? this.defaultValues);
+      this.values = defaultValues;
       return this.originalForm.reset(...args);
     });
 
