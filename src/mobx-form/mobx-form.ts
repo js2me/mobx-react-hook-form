@@ -2,7 +2,6 @@
 import { LinkedAbortController } from 'linked-abort-controller';
 import {
   action,
-  comparer,
   isObservableObject,
   makeObservable,
   observable,
@@ -31,6 +30,7 @@ import {
   UseFormUnregister,
 } from 'react-hook-form';
 
+import { DeepObservableStruct } from './deep-observable-struct.js';
 import { FormParams } from './mobx-form.types.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
@@ -44,7 +44,7 @@ export class Form<
   TTransformedValues = TFieldValues,
 > implements FormFullState<TFieldValues>
 {
-  values!: TFieldValues;
+  values: TFieldValues;
   isDirty: boolean = false;
   isLoading: boolean = false;
   isSubmitted: boolean = false;
@@ -59,15 +59,12 @@ export class Form<
    * Use {resetForm} method
    */
   defaultValues!: Readonly<DefaultValues<TFieldValues>>;
-  dirtyFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>> =
-    {};
-  touchedFields: Partial<
-    Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>
-  > = {};
+  dirtyFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>>;
+  touchedFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>>;
   validatingFields: Partial<
     Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>
-  > = {};
-  errors: FieldErrors<TFieldValues> = {};
+  >;
+  errors: FieldErrors<TFieldValues>;
   isReady: boolean = false;
 
   /**
@@ -307,13 +304,18 @@ export class Form<
 
   protected abortController: AbortController;
 
-  protected lastRafId: number | undefined;
-
   /**
    * Original react-hook-form form
    */
   originalForm: ReturnType<
     typeof createFormControl<TFieldValues, TContext, TTransformedValues>
+  >;
+
+  private _observableStruct: DeepObservableStruct<
+    Pick<
+      FormFullState<TFieldValues>,
+      'dirtyFields' | 'errors' | 'touchedFields' | 'validatingFields' | 'values'
+    >
   >;
 
   constructor(
@@ -365,8 +367,21 @@ export class Form<
       return this.originalForm.reset(...args);
     });
 
-    Object.assign(this, {
+    this._observableStruct = new DeepObservableStruct({
       values: this.originalForm.getValues(),
+      errors: {},
+      dirtyFields: {},
+      touchedFields: {},
+      validatingFields: {},
+    });
+
+    this.values = this._observableStruct.data.values;
+    this.errors = this._observableStruct.data.errors;
+    this.validatingFields = this._observableStruct.data.validatingFields;
+    this.dirtyFields = this._observableStruct.data.dirtyFields;
+    this.touchedFields = this._observableStruct.data.touchedFields;
+
+    Object.assign(this, {
       defaultValues,
     });
 
@@ -385,19 +400,11 @@ export class Form<
         if (this.config.lazyUpdates === false) {
           this.updateFormState(rawFormState);
         } else {
-          if (this.lastRafId !== undefined) {
-            cancelAnimationFrame(this.lastRafId);
-            this.lastRafId = undefined;
-          }
-          this.lastRafId = requestAnimationFrame(() => {
-            this.updateFormState(rawFormState);
-            this.lastRafId = undefined;
-          });
+          this.scheduleUpdateFormState(rawFormState);
         }
       },
     });
 
-    observable.deep(this, 'values');
     observable.ref(this, 'isDirty');
     observable.ref(this, 'isLoading');
     observable.ref(this, 'isSubmitted');
@@ -409,10 +416,6 @@ export class Form<
     observable.ref(this, 'submitCount');
     observable.ref(this, 'isReady');
     observable.deep(this, 'defaultValues');
-    observable.deep(this, 'dirtyFields');
-    observable.deep(this, 'touchedFields');
-    observable.deep(this, 'validatingFields');
-    observable.deep(this, 'errors');
     action(this, 'updateFormState');
 
     observable.ref(this, 'originalForm');
@@ -469,6 +472,9 @@ export class Form<
   private updateFormState({
     values,
     errors,
+    dirtyFields,
+    validatingFields,
+    touchedFields,
     ...simpleProperties
   }: Partial<FormFullState<TFieldValues>>) {
     Object.entries(simpleProperties).forEach(([key, value]) => {
@@ -478,42 +484,45 @@ export class Form<
       }
     });
 
-    if (errors) {
-      const currentErrorsSet = new Set(Object.keys(this.errors));
-      const newErrors = Object.keys(errors);
-
-      for (const errorField of newErrors) {
-        if (currentErrorsSet.has(errorField)) {
-          currentErrorsSet.delete(errorField);
-          if (
-            !comparer.structural(this.errors[errorField], errors[errorField])
-          ) {
-            // @ts-ignore
-            Object.assign(this.errors[errorField], errors[errorField]);
-          }
-        } else {
-          // @ts-ignore
-          this.errors[errorField] = errors[errorField];
-        }
-      }
-
-      currentErrorsSet.forEach((errorField) => {
-        // @ts-ignore
-        delete this.errors[errorField];
-      });
-    } else {
-      this.errors = {};
-    }
-
-    // @ts-ignore
-    this.values = values ?? {};
+    this._observableStruct.set({
+      dirtyFields,
+      errors,
+      touchedFields,
+      validatingFields,
+      values,
+    });
   }
+
+  protected lastRafId: number | undefined;
+  protected lastTimeoutId: number | undefined;
+
+  private stopScheduledFormStateUpdate = () => {
+    if (this.lastRafId !== undefined) {
+      cancelAnimationFrame(this.lastRafId);
+      this.lastRafId = undefined;
+    }
+    if (this.lastTimeoutId !== undefined) {
+      clearTimeout(this.lastTimeoutId);
+      this.lastTimeoutId = undefined;
+    }
+  };
+
+  private scheduleUpdateFormState = (
+    rawFormState: Partial<FormFullState<TFieldValues>>,
+  ) => {
+    this.stopScheduledFormStateUpdate();
+    this.lastTimeoutId = setTimeout(() => {
+      this.lastRafId = requestAnimationFrame(() => {
+        this.updateFormState(rawFormState);
+        this.lastTimeoutId = undefined;
+        this.lastRafId = undefined;
+      });
+    }, this.config.lazyUpdatesTimer ?? 50);
+  };
 
   destroy(): void {
     this.abortController.abort();
-    if (this.lastRafId !== undefined) {
-      cancelAnimationFrame(this.lastRafId);
-    }
+    this.stopScheduledFormStateUpdate();
   }
 }
 

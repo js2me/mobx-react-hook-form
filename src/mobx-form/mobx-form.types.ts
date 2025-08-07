@@ -46,10 +46,15 @@ export interface FormParams<
    */
   onReset?: (event: any) => void;
   /**
-   * lazy mobx form state updates using requestAnimationFrame
-   * @default - {true}
+   * lazy mobx form state updates using setTimeout
+   * @defaults `true`
    */
   lazyUpdates?: boolean;
+  /**
+   * lazy mobx form state updates timer in ms
+   * @defaults `50`
+   */
+  lazyUpdatesTimer?: number;
 }
 
 /**
