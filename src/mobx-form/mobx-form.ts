@@ -478,12 +478,12 @@ export class Form<
   submit(e?: BaseSyntheticEvent) {
     return new Promise<TTransformedValues>((resolve, reject) => {
       this.originalForm.handleSubmit(
-        (data, event) => {
-          this.config.onSubmit?.(data, event);
+        async (data, event) => {
+          await this.config.onSubmit?.(data, event);
           resolve(data);
         },
-        (errors, event) => {
-          this.config.onSubmitFailed?.(errors, event);
+        async (errors, event) => {
+          await this.config.onSubmitFailed?.(errors, event);
           reject(errors);
         },
       )(e);
