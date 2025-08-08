@@ -51,6 +51,7 @@ Differences:
 ### `changeField(name, value, opts)`
 
 The same as [`setValue`](https://react-hook-form.com/docs/useform/setvalue), but will trigger validation if form was submitted  
+Also you can pass `undefined` as value to remove value   
 It should work the same as `field.onChange` from `react-hook-form`'s Controller
 
 Example:
@@ -62,6 +63,8 @@ changeField("name", "value");
 /** form submitted **/
 
 changeField("name", "value"); // will call setValue('name', 'value', { shouldValidate: true })
+
+changeField("name", undefined); // removes value
 ```
 
 ### `submit()`

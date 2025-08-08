@@ -15,10 +15,13 @@ import {
   DeepPartial,
   DefaultValues,
   FieldErrors,
+  FieldPath,
+  FieldPathValue,
   FieldValues,
   FormState,
   get,
   set,
+  SetValueConfig,
   UseFormClearErrors,
   UseFormRegister,
   UseFormReset,
@@ -451,10 +454,16 @@ export class Form<
    * changeField('name', 'value'); // will call setValue('name', 'value', { shouldValidate: true })
    * ```
    */
-  changeField: UseFormSetValue<TFieldValues> = (name, value, opts) => {
-    this.setValue(name, value, {
-      ...opts,
-      shouldValidate: opts?.shouldValidate ?? this.isSubmitted,
+  changeField = <
+    TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  >(
+    name: TFieldName,
+    value: FieldPathValue<TFieldValues, TFieldName> | undefined,
+    options?: SetValueConfig,
+  ) => {
+    this.setValue(name, value as any, {
+      ...options,
+      shouldValidate: options?.shouldValidate ?? this.isSubmitted,
     });
   };
 
