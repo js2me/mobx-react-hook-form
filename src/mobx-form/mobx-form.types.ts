@@ -52,7 +52,7 @@ export interface FormParams<
   lazyUpdates?: boolean;
   /**
    * lazy mobx form state updates timer in ms
-   * @defaults `50`
+   * @defaults `0`
    */
   lazyUpdatesTimer?: number;
 }

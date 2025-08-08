@@ -434,6 +434,17 @@ export class Form<
   }
 
   /**
+   * The same as setValue, but will trigger validation if form was submitted
+   * It should work the same as field.onChange from react-hook-form's Controller
+   */
+  changeField: UseFormSetValue<TFieldValues> = (name, value, opts) => {
+    this.setValue(name, value, {
+      ...opts,
+      shouldValidate: opts?.shouldValidate ?? this.isSubmitted,
+    });
+  };
+
+  /**
    * Method to manually submit form.
    * Used to attach this method to <form /> element
    *
@@ -517,7 +528,7 @@ export class Form<
         this.lastTimeoutId = undefined;
         this.lastRafId = undefined;
       });
-    }, this.config.lazyUpdatesTimer ?? 50);
+    }, this.config.lazyUpdatesTimer ?? 0);
   };
 
   destroy(): void {
