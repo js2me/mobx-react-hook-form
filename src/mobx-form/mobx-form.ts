@@ -436,6 +436,20 @@ export class Form<
   /**
    * The same as setValue, but will trigger validation if form was submitted
    * It should work the same as field.onChange from react-hook-form's Controller
+   *
+   * @param name - the path name to the form field value.
+   * @param value - field value
+   * @param options - should validate or update form state
+   *
+   * @example
+   * ```tsx
+   * // Update a single field
+   * changeField('name', 'value');
+   *
+   * ** form submitted **
+   *
+   * changeField('name', 'value'); // will call setValue('name', 'value', { shouldValidate: true })
+   * ```
    */
   changeField: UseFormSetValue<TFieldValues> = (name, value, opts) => {
     this.setValue(name, value, {
@@ -504,14 +518,9 @@ export class Form<
     });
   }
 
-  protected lastRafId: number | undefined;
   protected lastTimeoutId: number | undefined;
 
   private stopScheduledFormStateUpdate = () => {
-    if (this.lastRafId !== undefined) {
-      cancelAnimationFrame(this.lastRafId);
-      this.lastRafId = undefined;
-    }
     if (this.lastTimeoutId !== undefined) {
       clearTimeout(this.lastTimeoutId);
       this.lastTimeoutId = undefined;
@@ -523,11 +532,8 @@ export class Form<
   ) => {
     this.stopScheduledFormStateUpdate();
     this.lastTimeoutId = setTimeout(() => {
-      this.lastRafId = requestAnimationFrame(() => {
-        this.updateFormState(rawFormState);
-        this.lastTimeoutId = undefined;
-        this.lastRafId = undefined;
-      });
+      this.updateFormState(rawFormState);
+      this.lastTimeoutId = undefined;
     }, this.config.lazyUpdatesTimer ?? 0);
   };
 

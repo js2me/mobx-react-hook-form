@@ -1,8 +1,8 @@
 # [mobx-react-hook-form](https://github.com/js2me/mobx-react-hook-form)
 
-Simple [react-hook-form](https://react-hook-form.com/) wrapper for [MobX](https://mobx.js.org/).  
+Simple [react-hook-form](https://react-hook-form.com/) wrapper for [MobX](https://mobx.js.org/).
 
-## Usage  
+## Usage
 
 ```tsx
 import { reaction } from "mobx";
@@ -35,4 +35,67 @@ const YourView = observer(() => {
   )
 })
 
+```
+
+## API
+
+This library uses [`createFormControl`](https://react-hook-form.com/docs/createFormControl).  
+So API is almost identical with result of `createFormControl` function call.
+
+Differences:
+
+- `reset` method renamed to `resetForm`
+
+## Additional API
+
+### `changeField(name, value, opts)`
+
+The same as [`setValue`](https://react-hook-form.com/docs/useform/setvalue), but will trigger validation if form was submitted  
+It should work the same as `field.onChange` from `react-hook-form`'s Controller
+
+Example:
+
+```tsx
+// Update a single field
+changeField("name", "value");
+
+/** form submitted **/
+
+changeField("name", "value"); // will call setValue('name', 'value', { shouldValidate: true })
+```
+
+### `submit()`
+
+This method is needed to pass into `<form />` as `onSubmit` prop, or you can call this method if you want to submit form
+
+Example:
+
+```tsx
+const form = new Form();
+
+const Component = () => {
+  return (
+    <form onSubmit={form.submit} onReset={form.reset}>
+      ...
+    </form>
+  );
+};
+```
+
+### `reset()`
+
+This method is needed to pass into `<form />` as `onReset` prop, or you can call this method if you want to reset form
+
+Example:
+
+```tsx
+const form = new Form();
+
+const Component = () => {
+  return (
+    <form onSubmit={form.submit} onReset={form.reset}>
+      ...
+    </form>
+  );
+};
 ```
