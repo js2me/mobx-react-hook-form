@@ -5,7 +5,9 @@
   "scripts": {
     "prepare": "pnpm dev:install-hooks",
     "clean": "rimraf dist",
-    "check": "eslint . --fix",
+    "lint:check": "pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true",
+    "ts:check": "tsc --noEmit",
+    "check": "npm run lint:check && npm run ts:check",
     "prebuild": "npm run clean && npm run check",
     "build": "tsc && node ./post-build.mjs",
     "build:watch": "npm run build && nodemon --delay 0.5 --watch src --ext ts,tsx --exec \"tsc && node ./post-build.mjs\"",
@@ -14,6 +16,9 @@
     "pub:patch": "PUBLISH=true PUBLISH_VERSION=patch pnpm run build",
     "pub:minor": "PUBLISH=true PUBLISH_VERSION=minor pnpm run build",
     "pub:major": "PUBLISH=true PUBLISH_VERSION=major pnpm run build",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest watch --config vitest.config.ts",
+    "test:coverage": "vitest run --config vitest.config.ts --coverage",
     "pub:patch:next": "PUBLISH=true PUBLISH_VERSION=patch PUBLISH_TAG=next PUBLISH_FORCE=true pnpm run build",
     "dev:install-hooks": "if [ -z \"$CI\" ]; then lefthook install; fi"
   },
@@ -42,13 +47,16 @@
     "yummies": "^4.0.0"
   },
   "devDependencies": {
-    "commitfmt": "^1.0.0",
-    "eslint": "^8.57.1",
-    "js2me-eslint-config": "^1.0.7",
+    "@biomejs/biome": "2.1.4",
+    "commitfmt": "^1.0.4",
     "js2me-exports-post-build-script": "^3.0.2",
+    "jsdom": "^26.1.0",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "@vitest/coverage-istanbul": "^3.1.2",
     "lefthook": "^1.11.13",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
   }
 }

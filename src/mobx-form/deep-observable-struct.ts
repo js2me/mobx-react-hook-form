@@ -1,9 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable sonarjs/cognitive-complexity */
 import { action, makeObservable, observable } from 'mobx';
 import { typeGuard } from 'yummies/type-guard';
-import { AnyObject } from 'yummies/utils/types';
+import type { AnyObject } from 'yummies/utils/types';
 
 export class DeepObservableStruct<TData extends AnyObject> {
   data: TData;
@@ -26,10 +23,15 @@ export class DeepObservableStruct<TData extends AnyObject> {
       newData,
     ]);
 
-    while (stack.length > 0) {
-      const [key, currObservableData, newData] = stack.shift()!;
+    let currentIndex = 0;
+    let stackLength = stack.length;
+
+    while (currentIndex < stackLength) {
+      const [key, currObservableData, newData] = stack[currentIndex];
       const newValue = newData[key];
       const currValue = currObservableData[key];
+
+      currentIndex++;
 
       if (key in newData) {
         if (typeGuard.isObject(newValue) && typeGuard.isObject(currValue)) {
@@ -42,7 +44,12 @@ export class DeepObservableStruct<TData extends AnyObject> {
           });
 
           newValueKeys.forEach((childKey) => {
-            stack.push([childKey, currObservableData[key], newValue]);
+            const length = stack.push([
+              childKey,
+              currObservableData[key],
+              newValue,
+            ]);
+            stackLength = length;
           });
         } else if (newValue !== currValue) {
           currObservableData[key] = newValue;

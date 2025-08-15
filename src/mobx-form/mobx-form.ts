@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { LinkedAbortController } from 'linked-abort-controller';
 import {
   action,
@@ -7,34 +6,33 @@ import {
   observable,
   toJS,
 } from 'mobx';
-import { BaseSyntheticEvent } from 'react';
+import type { BaseSyntheticEvent } from 'react';
 import {
-  Control,
+  type Control,
   createFormControl,
-  DeepMap,
-  DeepPartial,
-  DefaultValues,
-  FieldErrors,
-  FieldPath,
-  FieldPathValue,
-  FieldValues,
-  FormState,
+  type DeepMap,
+  type DeepPartial,
+  type DefaultValues,
+  type FieldErrors,
+  type FieldPath,
+  type FieldPathValue,
+  type FieldValues,
+  type FormState,
   get,
+  type SetValueConfig,
   set,
-  SetValueConfig,
-  UseFormClearErrors,
-  UseFormRegister,
-  UseFormReset,
-  UseFormResetField,
-  UseFormSetError,
-  UseFormSetFocus,
-  UseFormSetValue,
-  UseFormTrigger,
-  UseFormUnregister,
+  type UseFormClearErrors,
+  type UseFormRegister,
+  type UseFormReset,
+  type UseFormResetField,
+  type UseFormSetError,
+  type UseFormSetFocus,
+  type UseFormSetValue,
+  type UseFormTrigger,
+  type UseFormUnregister,
 } from 'react-hook-form';
-
 import { DeepObservableStruct } from './deep-observable-struct.js';
-import { FormParams } from './mobx-form.types.js';
+import type { FormParams } from './mobx-form.types.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
   FormState<TFieldValues> & {
