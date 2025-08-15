@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable sonarjs/cognitive-complexity */
-import { action, makeObservable, observable, toJS } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import { typeGuard } from 'yummies/type-guard';
 import { AnyObject } from 'yummies/utils/types';
 
@@ -18,23 +18,20 @@ export class DeepObservableStruct<TData extends AnyObject> {
   }
 
   set(newData: Partial<TData>) {
-    const currentData = toJS(this.data);
     const stack: {
       key: string;
       currObservable: AnyObject;
-      curr: AnyObject;
       new: AnyObject;
-    }[] = Object.keys(currentData).map((it) => ({
-      key: it,
+    }[] = Object.keys(this.data).map((key) => ({
+      key,
       currObservable: this.data,
-      curr: currentData,
       new: newData,
     }));
 
     while (stack.length > 0) {
       const item = stack.shift()!;
       const newValue = item.new[item.key];
-      const currValue = item.curr[item.key];
+      const currValue = item.currObservable[item.key];
 
       if (item.key in item.new) {
         if (typeGuard.isObject(newValue) && typeGuard.isObject(currValue)) {
@@ -50,7 +47,6 @@ export class DeepObservableStruct<TData extends AnyObject> {
             stack.push({
               key,
               currObservable: item.currObservable[item.key],
-              curr: currValue,
               new: newValue,
             });
           });
@@ -63,7 +59,7 @@ export class DeepObservableStruct<TData extends AnyObject> {
     }
 
     Object.keys(newData).forEach((newDataKey) => {
-      if (!currentData[newDataKey]) {
+      if (!this.data[newDataKey]) {
         // @ts-ignore
         this.data[newDataKey] = newData[newDataKey];
       }
