@@ -1,4 +1,4 @@
-import {
+import type {
   DeepPartial,
   FieldValues,
   SubmitErrorHandler,
@@ -71,7 +71,10 @@ export type ExtractFormFieldValues<T extends AnyForm> = Exclude<
   undefined | null
 >;
 
-export type ExtractFormFieldOutputValues<T extends AnyForm> =
-  T extends Form<any, any, infer TFieldOutputValues>
-    ? TFieldOutputValues
-    : never;
+export type ExtractFormFieldOutputValues<T extends AnyForm> = T extends Form<
+  any,
+  any,
+  infer TFieldOutputValues
+>
+  ? TFieldOutputValues
+  : never;
