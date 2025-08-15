@@ -1,6 +1,6 @@
 {
   "name": "mobx-react-hook-form",
-  "version": "5.1.3",
+  "version": "5.1.4",
   "description": "",
   "scripts": {
     "prepare": "pnpm dev:install-hooks",
