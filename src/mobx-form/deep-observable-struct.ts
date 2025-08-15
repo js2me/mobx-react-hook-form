@@ -18,43 +18,37 @@ export class DeepObservableStruct<TData extends AnyObject> {
   }
 
   set(newData: Partial<TData>) {
-    const stack: {
-      key: string;
-      currObservable: AnyObject;
-      new: AnyObject;
-    }[] = Object.keys(this.data).map((key) => ({
+    type StackItem = [key: string, currObservable: AnyObject, new: AnyObject];
+
+    const stack: StackItem[] = Object.keys(this.data).map((key) => [
       key,
-      currObservable: this.data,
-      new: newData,
-    }));
+      this.data,
+      newData,
+    ]);
 
     while (stack.length > 0) {
-      const item = stack.shift()!;
-      const newValue = item.new[item.key];
-      const currValue = item.currObservable[item.key];
+      const [key, currObservableData, newData] = stack.shift()!;
+      const newValue = newData[key];
+      const currValue = currObservableData[key];
 
-      if (item.key in item.new) {
+      if (key in newData) {
         if (typeGuard.isObject(newValue) && typeGuard.isObject(currValue)) {
           const newValueKeys = Object.keys(newValue);
 
-          Object.keys(currValue).forEach((key) => {
-            if (!(key in newValue)) {
-              delete item.currObservable[item.key][key];
+          Object.keys(currValue).forEach((childKey) => {
+            if (!(childKey in newValue)) {
+              delete currObservableData[key][childKey];
             }
           });
 
-          newValueKeys.forEach((key) => {
-            stack.push({
-              key,
-              currObservable: item.currObservable[item.key],
-              new: newValue,
-            });
+          newValueKeys.forEach((childKey) => {
+            stack.push([childKey, currObservableData[key], newValue]);
           });
         } else if (newValue !== currValue) {
-          item.currObservable[item.key] = newValue;
+          currObservableData[key] = newValue;
         }
       } else {
-        delete item.currObservable[item.key];
+        delete currObservableData[key];
       }
     }
 
