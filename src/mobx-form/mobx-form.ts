@@ -487,7 +487,7 @@ export class Form<
           },
         )(e);
       } else {
-        const emptyData = {} as TTransformedValues;
+        const emptyData = (this.values ?? {}) as unknown as TTransformedValues;
         const result = this.config.onSubmit?.(emptyData);
         if (result instanceof Promise) {
           return result.then(() => resolve(emptyData));
