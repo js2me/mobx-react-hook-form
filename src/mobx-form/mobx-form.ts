@@ -475,16 +475,26 @@ export class Form<
    */
   submit(e?: BaseSyntheticEvent) {
     return new Promise<TTransformedValues>((resolve, reject) => {
-      this.originalForm.handleSubmit(
-        async (data, event) => {
-          await this.config.onSubmit?.(data, event);
-          resolve(data);
-        },
-        async (errors, event) => {
-          await this.config.onSubmitFailed?.(errors, event);
-          reject(errors);
-        },
-      )(e);
+      if (this.originalForm) {
+        this.originalForm.handleSubmit(
+          async (data, event) => {
+            await this.config.onSubmit?.(data, event);
+            resolve(data);
+          },
+          async (errors, event) => {
+            await this.config.onSubmitFailed?.(errors, event);
+            reject(errors);
+          },
+        )(e);
+      } else {
+        const emptyData = {} as TTransformedValues;
+        const result = this.config.onSubmit?.(emptyData);
+        if (result instanceof Promise) {
+          return result.then(() => resolve(emptyData));
+        } else {
+          return Promise.resolve(emptyData);
+        }
+      }
     });
   }
 
