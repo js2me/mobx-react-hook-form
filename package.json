@@ -44,7 +44,7 @@
     "@types/react": "^18.0.0 || ^19.0.0",
     "disposer-util": "^2.0.0",
     "linked-abort-controller": "^1.1.0",
-    "yummies": "^4.0.0"
+    "yummies": "^4.12.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.4",

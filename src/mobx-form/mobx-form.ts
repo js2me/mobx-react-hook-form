@@ -31,7 +31,7 @@ import {
   type UseFormTrigger,
   type UseFormUnregister,
 } from 'react-hook-form';
-import { DeepObservableStruct } from './deep-observable-struct.js';
+import { DeepObservableStruct } from 'yummies/mobx';
 import type { FormParams } from './mobx-form.types.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
