@@ -429,8 +429,6 @@ export class Form<
       subscription();
       // @ts-ignore
       this.originalForm = null;
-      // @ts-ignore
-      this.data = null;
     });
   }
 
