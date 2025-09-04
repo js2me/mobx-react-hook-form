@@ -363,7 +363,7 @@ export class Form<
         defaultValues = structuredClone(defaultValues);
       }
 
-      // @ts-ignore
+      // @ts-expect-error
       this.values = defaultValues;
       return this.originalForm.reset(...args);
     });
@@ -427,13 +427,13 @@ export class Form<
 
     this.abortController.signal.addEventListener('abort', () => {
       subscription();
-      // @ts-ignore
+      // @ts-expect-error
       this.originalForm = null;
     });
   }
 
   /**
-   * The same as setValue, but will trigger validation if form was submitted
+   * The same as setValue, but will trigger validation if form was submitted, also marks this field as dirty
    * It should work the same as field.onChange from react-hook-form's Controller
    *
    * @param name - the path name to the form field value.
@@ -444,10 +444,14 @@ export class Form<
    * ```tsx
    * // Update a single field
    * changeField('name', 'value');
+   * ->
+   * setValue('name', 'value', { shouldDirty: true });
    *
    * ** form submitted **
    *
-   * changeField('name', 'value'); // will call setValue('name', 'value', { shouldValidate: true })
+   * changeField('name', 'value');
+   * ->
+   * setValue('name', 'value', { shouldDirty: true, shouldValidate: true });
    * ```
    */
   changeField = <
@@ -458,8 +462,9 @@ export class Form<
     options?: SetValueConfig,
   ) => {
     this.setValue(name, value as any, {
+      shouldDirty: true,
+      shouldValidate: this.isSubmitted,
       ...options,
-      shouldValidate: options?.shouldValidate ?? this.isSubmitted,
     });
   };
 
@@ -519,7 +524,7 @@ export class Form<
   }: Partial<FormFullState<TFieldValues>>) {
     Object.entries(simpleProperties).forEach(([key, value]) => {
       if (value != null) {
-        // @ts-ignore
+        // @ts-expect-error
         this[key] = value;
       }
     });
