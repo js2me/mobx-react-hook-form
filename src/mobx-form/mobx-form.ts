@@ -538,7 +538,7 @@ export class Form<
     });
   }
 
-  protected lastTimeoutId: number | undefined;
+  protected lastTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   private stopScheduledFormStateUpdate = () => {
     if (this.lastTimeoutId !== undefined) {
