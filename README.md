@@ -102,3 +102,7 @@ const Component = () => {
   );
 };
 ```
+
+## Contribution Guide    
+
+Want to contribute ? [Follow this guide](https://github.com/js2me/mobx-react-hook-form/blob/master/CONTRIBUTING.md)  
