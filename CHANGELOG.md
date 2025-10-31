@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 5.5.0
+
+### Minor Changes
+
+- [`c15b289`](https://github.com/js2me/mobx-react-hook-form/commit/c15b28954387de710cf3ef50a87e8d293ea3b3a1) Thanks [@js2me](https://github.com/js2me)! - [internal] migration to yummies 6.x
+
 ## 5.4.0
 
 ### Minor Changes
