@@ -22,6 +22,7 @@ import {
   type SetValueConfig,
   set,
   type UseFormClearErrors,
+  type UseFormGetValues,
   type UseFormRegister,
   type UseFormReset,
   type UseFormResetField,
@@ -268,6 +269,29 @@ export class Form<
   setValue: UseFormSetValue<TFieldValues>;
 
   /**
+   * Get a single field value, or a group of fields value.
+   *
+   * @remarks
+   * [API](https://react-hook-form.com/docs/useform/getvalues) • [Demo](https://codesandbox.io/s/react-hook-form-v7-ts-getvalues-txsfg)
+   *
+   * @param fieldNames - the path name to the form field value.
+   * @param options - returns only dirty fields or return only touchedFields
+   *
+   * @example
+   * ```tsx
+   * // Update a single field
+   * getValues('name', 'value', {
+   *   dirtyFields: true, // returns only dirty fields
+   *   touchedFields: true, // returns only touchedFields
+   * });
+   *
+   * // Get nested values
+   * getValues('root.nested.0.value');
+   * ```
+   */
+  getValues: UseFormGetValues<TFieldValues>;
+
+  /**
    * Reset at the entire form state.
    *
    * @remarks
@@ -354,6 +378,7 @@ export class Form<
       set(this.values, args[0], args[1]);
       return this.originalForm.setValue(...args);
     });
+    this.getValues = this.originalForm.getValues;
     this.resetForm = action((...args) => {
       let defaultValues = args[0] ?? this.defaultValues;
 
