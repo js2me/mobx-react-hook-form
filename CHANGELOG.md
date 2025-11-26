@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 5.6.0
+
+### Minor Changes
+
+- [#5](https://github.com/js2me/mobx-react-hook-form/pull/5) [`98693c2`](https://github.com/js2me/mobx-react-hook-form/commit/98693c22150a8dfaa53425455664cb425e7a8e0b) Thanks [@rogerok](https://github.com/rogerok)! - Added getValues method to Form class
+
 ## 5.5.0
 
 ### Minor Changes
