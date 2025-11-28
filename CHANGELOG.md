@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 5.9.0
+
+### Minor Changes
+
+- [`d60a69f`](https://github.com/js2me/mobx-react-hook-form/commit/d60a69f3c4f12065527a5b421afc4dc0cf8a4f65) Thanks [@js2me](https://github.com/js2me)! - hide extra strict submit logic on errors in flag (`strictSubmitChecks`)
+
 ## 5.8.0
 
 ### Minor Changes
