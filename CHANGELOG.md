@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 5.7.1
+
+### Patch Changes
+
+- [`b906a4b`](https://github.com/js2me/mobx-react-hook-form/commit/b906a4bcc2f37813ac6e03efd6b2c58a74245198) Thanks [@js2me](https://github.com/js2me)! - fix `setError` method to update errors force
+
 ## 5.7.0
 
 ### Minor Changes
