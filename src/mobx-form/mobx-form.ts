@@ -364,7 +364,10 @@ export class Form<
       ? { ...config.defaultValues }
       : ({} as any);
 
-    this.setError = this.originalForm.setError;
+    this.setError = action((...args) => {
+      set(this.errors, args[0], args[1]);
+      return this.originalForm.setError(...args);
+    });
     this.clearErrors = this.originalForm.clearErrors;
     this.trigger = this.originalForm.trigger;
     this.resetField = action((...args) => {
