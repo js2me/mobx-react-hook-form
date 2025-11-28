@@ -1,5 +1,15 @@
 # mobx-react-hook-form
 
+## 5.8.0
+
+### Minor Changes
+
+- [`5e6400d`](https://github.com/js2me/mobx-react-hook-form/commit/5e6400df205f8405a3f3a08112c0ccfd8ec032ab) Thanks [@js2me](https://github.com/js2me)! - added `hasErrors` computed getter for the Form
+
+### Patch Changes
+
+- [`5e6400d`](https://github.com/js2me/mobx-react-hook-form/commit/5e6400df205f8405a3f3a08112c0ccfd8ec032ab) Thanks [@js2me](https://github.com/js2me)! - fix submit method for cases when form has errors
+
 ## 5.7.1
 
 ### Patch Changes
