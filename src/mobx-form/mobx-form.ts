@@ -345,21 +345,33 @@ export class Form<
     >
   >;
 
-  constructor(
-    private config: FormParams<TFieldValues, TContext, TTransformedValues>,
-  ) {
+  shouldFocusError: boolean;
+
+  private config: FormParams<TFieldValues, TContext, TTransformedValues>;
+
+  constructor(config: FormParams<TFieldValues, TContext, TTransformedValues>) {
     this.abortController = new LinkedAbortController(config.abortSignal);
+
+    this.shouldFocusError = config.shouldFocusError ?? true;
+
+    this.config = {
+      ...config,
+      defaultValues: {
+        ...config.defaultValues,
+      } as DefaultValues<TFieldValues>,
+    };
+
+    Object.defineProperty(this.config, 'shouldFocusError', {
+      get() {
+        return this.shouldFocusError;
+      },
+    });
 
     this.originalForm = createFormControl<
       TFieldValues,
       TContext,
       TTransformedValues
-    >({
-      ...config,
-      defaultValues: {
-        ...config.defaultValues,
-      } as DefaultValues<TFieldValues>,
-    });
+    >(this.config as any);
 
     const defaultValues = config.defaultValues
       ? { ...config.defaultValues }
