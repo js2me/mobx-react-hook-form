@@ -1,6 +1,7 @@
 import { LinkedAbortController } from 'linked-abort-controller';
 import {
   action,
+  computed,
   isObservableObject,
   makeObservable,
   observable,
@@ -446,6 +447,7 @@ export class Form<
     observable.ref(this, 'submitCount');
     observable.ref(this, 'isReady');
     observable.deep(this, 'defaultValues');
+    computed(this, 'hasErrors');
     action(this, 'updateFormState');
 
     observable.ref(this, 'originalForm');
@@ -510,6 +512,11 @@ export class Form<
       if (this.originalForm) {
         this.originalForm.handleSubmit(
           async (data, event) => {
+            if (this.hasErrors) {
+              await this.config.onSubmitFailed?.(this.errors, event);
+              reject(this.errors);
+              return;
+            }
             await this.config.onSubmit?.(data, event);
             resolve(data);
           },
@@ -541,6 +548,42 @@ export class Form<
   reset(e?: BaseSyntheticEvent) {
     this.resetForm();
     this.config.onReset?.(e);
+  }
+
+  get hasErrors() {
+    return Object.keys(this.errors).length > 0;
+  }
+
+  getErrorsWithPaths(): ErrorWithPath<TFieldValues>[] {
+    const result: ErrorWithPath<TFieldValues>[] = [];
+
+    const traverse = (obj: any, prefix = '') => {
+      if (!obj || typeof obj !== 'object') return;
+
+      Object.entries(obj).forEach(([key, value]) => {
+        const path = (prefix ? `${prefix}.${key}` : key) as any;
+
+        if (isFieldError(value)) {
+          result.push({ path, error: value });
+        } else if (Array.isArray(value)) {
+          value.forEach((item, idx) => {
+            const arrayPath = `${path}.${idx}` as any;
+
+            if (isFieldError(item)) {
+              result.push({ path: arrayPath, error: item });
+            } else if (typeof item === 'object') {
+              traverse(item, arrayPath);
+            }
+          });
+        } else if (typeof value === 'object') {
+          traverse(value, path);
+        }
+      });
+    };
+
+    traverse(this.errors);
+
+    return result;
   }
 
   private updateFormState({
@@ -585,38 +628,6 @@ export class Form<
       this.lastTimeoutId = undefined;
     }, this.config.lazyUpdatesTimer ?? 0);
   };
-
-  getErrorsWithPaths(): ErrorWithPath<TFieldValues>[] {
-    const result: ErrorWithPath<TFieldValues>[] = [];
-
-    const traverse = (obj: any, prefix = '') => {
-      if (!obj || typeof obj !== 'object') return;
-
-      Object.entries(obj).forEach(([key, value]) => {
-        const path = (prefix ? `${prefix}.${key}` : key) as any;
-
-        if (isFieldError(value)) {
-          result.push({ path, error: value });
-        } else if (Array.isArray(value)) {
-          value.forEach((item, idx) => {
-            const arrayPath = `${path}.${idx}` as any;
-
-            if (isFieldError(item)) {
-              result.push({ path: arrayPath, error: item });
-            } else if (typeof item === 'object') {
-              traverse(item, arrayPath);
-            }
-          });
-        } else if (typeof value === 'object') {
-          traverse(value, path);
-        }
-      });
-    };
-
-    traverse(this.errors);
-
-    return result;
-  }
 
   destroy(): void {
     this.abortController.abort();
