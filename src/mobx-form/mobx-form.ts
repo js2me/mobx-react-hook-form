@@ -512,10 +512,14 @@ export class Form<
       if (this.originalForm) {
         this.originalForm.handleSubmit(
           async (data, event) => {
-            if (this.hasErrors) {
-              await this.config.onSubmitFailed?.(this.errors, event);
-              reject(this.errors);
-              return;
+            if (this.config.strictSubmitChecks) {
+              const anyErrorWithPath = this.getErrorsWithPaths(true)[0];
+              if (anyErrorWithPath) {
+                this.setFocus(anyErrorWithPath.path);
+                await this.config.onSubmitFailed?.(this.errors, event);
+                reject(this.errors);
+                return;
+              }
             }
             await this.config.onSubmit?.(data, event);
             resolve(data);
@@ -554,7 +558,7 @@ export class Form<
     return Object.keys(this.errors).length > 0;
   }
 
-  getErrorsWithPaths(): ErrorWithPath<TFieldValues>[] {
+  getErrorsWithPaths(getOnlyFirst?: boolean): ErrorWithPath<TFieldValues>[] {
     const result: ErrorWithPath<TFieldValues>[] = [];
 
     const traverse = (obj: any, prefix = '') => {
@@ -565,12 +569,18 @@ export class Form<
 
         if (isFieldError(value)) {
           result.push({ path, error: value });
+          if (getOnlyFirst) {
+            return;
+          }
         } else if (Array.isArray(value)) {
           value.forEach((item, idx) => {
             const arrayPath = `${path}.${idx}` as any;
 
             if (isFieldError(item)) {
               result.push({ path: arrayPath, error: item });
+              if (getOnlyFirst) {
+                return;
+              }
             } else if (typeof item === 'object') {
               traverse(item, arrayPath);
             }

@@ -57,6 +57,10 @@ export interface FormParams<
    * @defaults `0`
    */
   lazyUpdatesTimer?: number;
+  /**
+   * Allows to check on existing errors in submit handler
+   */
+  strictSubmitChecks?: boolean;
 }
 
 /**
