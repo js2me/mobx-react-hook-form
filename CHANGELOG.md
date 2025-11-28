@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 5.7.0
+
+### Minor Changes
+
+- [`9113b2b`](https://github.com/js2me/mobx-react-hook-form/commit/9113b2bd729c646e66cb8a2dc298036ecb2a893b) Thanks [@js2me](https://github.com/js2me)! - add `getErrorsWithPaths` method for the Form class
+
 ## 5.6.0
 
 ### Minor Changes
