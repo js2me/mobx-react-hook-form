@@ -33,7 +33,8 @@ import {
   type UseFormUnregister,
 } from 'react-hook-form';
 import { DeepObservableStruct } from 'yummies/mobx';
-import type { FormParams } from './mobx-form.types.js';
+import { isFieldError } from '../utils/index.js';
+import type { ErrorWithPath, FormParams } from './mobx-form.types.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
   FormState<TFieldValues> & {
@@ -581,6 +582,38 @@ export class Form<
       this.lastTimeoutId = undefined;
     }, this.config.lazyUpdatesTimer ?? 0);
   };
+
+  getErrorsWithPaths(): ErrorWithPath<TFieldValues>[] {
+    const result: ErrorWithPath<TFieldValues>[] = [];
+
+    const traverse = (obj: any, prefix = '') => {
+      if (!obj || typeof obj !== 'object') return;
+
+      Object.entries(obj).forEach(([key, value]) => {
+        const path = (prefix ? `${prefix}.${key}` : key) as any;
+
+        if (isFieldError(value)) {
+          result.push({ path, error: value });
+        } else if (Array.isArray(value)) {
+          value.forEach((item, idx) => {
+            const arrayPath = `${path}.${idx}` as any;
+
+            if (isFieldError(item)) {
+              result.push({ path: arrayPath, error: item });
+            } else if (typeof item === 'object') {
+              traverse(item, arrayPath);
+            }
+          });
+        } else if (typeof value === 'object') {
+          traverse(value, path);
+        }
+      });
+    };
+
+    traverse(this.errors);
+
+    return result;
+  }
 
   destroy(): void {
     this.abortController.abort();

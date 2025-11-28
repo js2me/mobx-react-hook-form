@@ -1,5 +1,7 @@
 import type {
   DeepPartial,
+  FieldError,
+  FieldPath,
   FieldValues,
   SubmitErrorHandler,
   SubmitHandler,
@@ -78,3 +80,11 @@ export type ExtractFormFieldOutputValues<T extends AnyForm> = T extends Form<
 >
   ? TFieldOutputValues
   : never;
+
+export interface ErrorWithPath<
+  TFieldValues extends FieldValues = FieldValues,
+  TFieldName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> {
+  path: TFieldName;
+  error: FieldError;
+}
