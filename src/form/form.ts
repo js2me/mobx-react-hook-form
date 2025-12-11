@@ -1,12 +1,5 @@
 import { LinkedAbortController } from 'linked-abort-controller';
-import {
-  action,
-  computed,
-  isObservableObject,
-  makeObservable,
-  observable,
-  toJS,
-} from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import type { BaseSyntheticEvent } from 'react';
 import {
   type Control,
@@ -35,7 +28,7 @@ import {
 } from 'react-hook-form';
 import { DeepObservableStruct } from 'yummies/mobx';
 import { isFieldError } from '../utils/index.js';
-import type { ErrorWithPath, FormParams } from './mobx-form.types.js';
+import type { ErrorWithPath, FormParams } from './form.types.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
   FormState<TFieldValues> & {
@@ -397,16 +390,8 @@ export class Form<
     });
     this.getValues = this.originalForm.getValues;
     this.resetForm = action((...args) => {
-      let defaultValues = args[0] ?? this.defaultValues;
-
-      if (isObservableObject(defaultValues)) {
-        defaultValues = toJS(defaultValues);
-      } else {
-        defaultValues = structuredClone(defaultValues);
-      }
-
-      // @ts-expect-error
-      this.values = defaultValues;
+      const defaultValues = (args[0] ?? this.defaultValues) as TFieldValues;
+      this._observableStruct.set(defaultValues);
       return this.originalForm.reset(...args);
     });
 
@@ -656,6 +641,14 @@ export class Form<
     this.stopScheduledFormStateUpdate();
   }
 }
+
+export const createForm = <
+  TFieldValues extends FieldValues = FieldValues,
+  TContext = any,
+  TTransformedValues = TFieldValues,
+>(
+  config: FormParams<TFieldValues, TContext, TTransformedValues>,
+) => new Form(config);
 
 /**
  * @deprecated ⚠️ use `Form`. This export will be removed in next major release

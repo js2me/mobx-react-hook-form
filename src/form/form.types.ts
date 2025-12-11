@@ -8,7 +8,7 @@ import type {
   UseFormProps,
 } from 'react-hook-form';
 
-import type { Form } from './mobx-form.js';
+import type { Form } from './form.js';
 
 export type AnyForm = Form<any, any, any>;
 /**
