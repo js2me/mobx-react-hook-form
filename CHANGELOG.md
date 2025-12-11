@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 6.0.0
+
+### Major Changes
+
+- [`929294c`](https://github.com/js2me/mobx-react-hook-form/commit/929294c0c2bc268905495422b3632b5ea6ae3efb) Thanks [@js2me](https://github.com/js2me)! - Remove all custom reset\set\update values logic (setValue,resetField,resetForm,clearErrors,setError)
+
 ## 5.10.0
 
 ### Minor Changes
