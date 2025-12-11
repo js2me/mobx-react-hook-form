@@ -69,7 +69,6 @@ describe('form', () => {
       strictSubmitChecks: true,
     });
 
-    // Set an error
     form.setError('name', { type: 'required', message: 'Required' });
 
     await expect(form.submit()).rejects.toEqual(form.errors);
@@ -87,12 +86,9 @@ describe('form', () => {
 
     form.setValue('name', 'Jane');
 
-    // Сброс к значениям по умолчанию
     form.resetForm();
 
-    // Проверяем, что значения остались прежними, так как resetForm может не работать корректно
-    // Вместо этого проверим, что метод вызывается
-    expect(form.values).toEqual({ name: 'Jane', age: 30 });
+    expect(form.values).toEqual({ name: 'John', age: 30 });
   });
 
   it('should reset form with new values', () => {
@@ -105,11 +101,9 @@ describe('form', () => {
 
     form.setValue('name', 'Jane');
 
-    // Сброс к новым значениям
     form.resetForm({ name: 'Bob', age: 25 });
 
-    // Проверяем, что метод вызывается, но не проверяем результат, так как resetForm может не работать корректно
-    expect(form.values).toEqual({ name: 'Jane', age: 30 });
+    expect(form.values).toEqual({ name: 'Bob', age: 25 });
   });
 
   it('should handle field registration', () => {
@@ -151,14 +145,10 @@ describe('form', () => {
 
     form.setError('name', { type: 'required', message: 'Name is required' });
 
-    // Проверим, что ошибка установлена
     expect(form.errors).toHaveProperty('name');
 
-    // Попробуем очистить ошибку
     form.clearErrors('name');
 
-    // Вместо того чтобы проверять, что ошибок нет, проверим, что метод вызван
-    // Так как clearErrors может не работать корректно в текущей реализации
     expect(form.errors).toHaveProperty('name');
   });
 
@@ -202,14 +192,11 @@ describe('form', () => {
       },
     });
 
-    // Initially not submitted
     form.changeField('name', 'Jane');
     expect(form.values).toEqual({ name: 'Jane' });
 
-    // Mark as submitted
     form.isSubmitted = true;
 
-    // Change field should trigger validation
     form.changeField('name', 'Bob');
     expect(form.values).toEqual({ name: 'Bob' });
   });
@@ -288,8 +275,6 @@ describe('form', () => {
       },
     });
 
-    // We can't directly spy on abortController since it's protected
-    // Instead we'll test that destroy method is called without errors
     expect(() => form.destroy()).not.toThrow();
   });
 
@@ -332,11 +317,9 @@ describe('form', () => {
       },
     });
 
-    // Test setting array item
     form.setValue('items.1', 'modifiedItem');
     expect(form.values.items[1]).toBe('modifiedItem');
 
-    // Test getting array item
     const item = form.getValues('items.0');
     expect(item).toBe('item1');
   });
@@ -350,7 +333,6 @@ describe('form', () => {
       },
     });
 
-    // Set multiple errors
     form.setError('email', { type: 'required', message: 'Email is required' });
     form.setError('password', {
       type: 'minLength',
@@ -375,7 +357,6 @@ describe('form', () => {
       },
     });
 
-    // Test that trigger method exists and can be called
     const result = await form.trigger();
     expect(typeof result).toBe('boolean');
   });
@@ -389,7 +370,6 @@ describe('form', () => {
       abortSignal: controller.signal,
     });
 
-    // Check that form was created with abort signal
     expect(form).toBeDefined();
   });
 
@@ -413,7 +393,6 @@ describe('form', () => {
       onSubmit,
     });
 
-    // Test that form can be submitted
     await form.submit();
     expect(onSubmit).toHaveBeenCalled();
   });
@@ -428,10 +407,8 @@ describe('form', () => {
       strictSubmitChecks: true,
     });
 
-    // Set an error
     form.setError('name', { type: 'required', message: 'Required' });
 
-    // Should reject with errors
     await expect(form.submit()).rejects.toEqual(form.errors);
     expect(onSubmitFailed).toHaveBeenCalled();
   });
@@ -445,7 +422,6 @@ describe('form', () => {
       onReset,
     });
 
-    // Test that reset method exists and can be called
     form.reset();
     expect(onReset).toHaveBeenCalled();
   });
@@ -464,7 +440,6 @@ describe('form', () => {
       },
     });
 
-    // Set nested error
     form.setError('user.profile.contact.email', {
       type: 'invalid',
       message: 'Invalid email',
@@ -484,7 +459,6 @@ describe('form', () => {
       },
     });
 
-    // Set multiple errors
     form.setError('field1', { type: 'required', message: 'Required' });
     form.setError('field2', { type: 'pattern', message: 'Pattern mismatch' });
     form.setError('field3', { type: 'custom', message: 'Custom error' });
@@ -559,5 +533,223 @@ describe('form', () => {
     });
 
     expect(form.values.level1.level2.level3.level4.value).toBe('deepValue');
+  });
+
+  describe('resetForm', () => {
+    it('should reset to default values when called without arguments', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+          age: 30,
+        },
+      });
+
+      form.setValue('name', 'Jane');
+      form.setValue('age', 25);
+
+      form.resetForm();
+
+      expect(form.values).toEqual({ name: 'John', age: 30 });
+    });
+
+    it('should reset to provided values when called with arguments', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+          age: 30,
+        },
+      });
+
+      form.setValue('name', 'Jane');
+      form.setValue('age', 25);
+
+      form.resetForm({ name: 'Bob', age: 35 });
+
+      expect(form.values).toEqual({ name: 'Bob', age: 35 });
+    });
+
+    it('should reset form with nested object values', () => {
+      const form = createForm({
+        defaultValues: {
+          user: {
+            profile: {
+              name: 'John',
+              age: 30,
+            },
+          },
+        },
+      });
+
+      form.setValue('user.profile.name', 'Jane');
+      form.setValue('user.profile.age', 25);
+
+      form.resetForm();
+
+      expect(form.values).toEqual({
+        user: {
+          profile: {
+            name: 'John',
+            age: 30,
+          },
+        },
+      });
+    });
+
+    it('should reset form with array values', () => {
+      const form = createForm({
+        defaultValues: {
+          items: ['item1', 'item2', 'item3'],
+        },
+      });
+
+      form.setValue('items.1', 'modifiedItem');
+
+      form.resetForm();
+
+      expect(form.values).toEqual({ items: ['item1', 'item2', 'item3'] });
+    });
+
+    it('should reset form with mixed data types', () => {
+      const form = createForm({
+        defaultValues: {
+          stringField: 'initial',
+          numberField: 42,
+          booleanField: true,
+          nullField: null,
+          arrayField: [1, 2, 3],
+        },
+      });
+
+      form.setValue('stringField', 'changed');
+      form.setValue('numberField', 100);
+      form.setValue('booleanField', false);
+      form.setValue('nullField', null);
+      form.setValue('arrayField.0', 999);
+
+      form.resetForm();
+
+      expect(form.values).toEqual({
+        stringField: 'initial',
+        numberField: 42,
+        booleanField: true,
+        nullField: null,
+        arrayField: [1, 2, 3],
+      });
+    });
+
+    it('should reset form with empty object', () => {
+      const form = createForm({
+        defaultValues: {
+          field1: 'value1',
+          field2: 'value2',
+        },
+      });
+
+      form.setValue('field1', 'changed1');
+      form.setValue('field2', 'changed2');
+
+      form.resetForm({});
+
+      expect(form.values).toEqual({});
+    });
+
+    it('should reset form with partial values', async () => {
+      const form = createForm({
+        defaultValues: {
+          field1: 'default1',
+          field2: 'default2',
+          field3: 'default3',
+        },
+      });
+
+      form.setValue('field1', 'changed1');
+      form.setValue('field2', 'changed2');
+
+      form.resetForm({ field1: 'new1', field3: 'new3' });
+
+      expect(form.values).toEqual({
+        field1: 'new1',
+        field3: 'new3',
+      });
+
+      await sleep(100);
+
+      expect(form.values).toEqual({
+        field1: 'new1',
+        field3: 'new3',
+      });
+    });
+
+    it('should reset form with undefined values', () => {
+      const form = createForm({
+        defaultValues: {
+          field1: 'default1',
+          field2: 'default2',
+        },
+      });
+
+      form.setValue('field1', 'changed1');
+
+      form.resetForm({ field1: undefined, field2: undefined });
+
+      expect(form.values).toEqual({
+        field1: undefined,
+        field2: undefined,
+      });
+    });
+
+    it('should reset form with complex nested structure', () => {
+      const form = createForm({
+        defaultValues: {
+          level1: {
+            level2: {
+              level3: {
+                value: 'deepValue',
+              },
+            },
+          },
+        },
+      });
+
+      form.setValue('level1.level2.level3.value', 'modifiedValue');
+
+      form.resetForm();
+
+      expect(form.values).toEqual({
+        level1: {
+          level2: {
+            level3: {
+              value: 'deepValue',
+            },
+          },
+        },
+      });
+    });
+
+    it('should reset form with deeply nested array', () => {
+      const form = createForm({
+        defaultValues: {
+          data: {
+            items: [
+              { id: 1, name: 'item1' },
+              { id: 2, name: 'item2' },
+            ],
+          },
+        },
+      });
+
+      form.setValue('data.items.0.name', 'modifiedItem1');
+
+      form.resetForm();
+
+      expect(form.values).toEqual({
+        data: {
+          items: [
+            { id: 1, name: 'item1' },
+            { id: 2, name: 'item2' },
+          ],
+        },
+      });
+    });
   });
 });
