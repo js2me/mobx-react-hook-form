@@ -342,13 +342,13 @@ export class Form<
 
   // special hack to apply the same form value changes from the original form
   // using subscription
-  private skipLazyUpdate: boolean;
+  private forceFormUpdate: boolean;
 
   constructor(config: FormParams<TFieldValues, TContext, TTransformedValues>) {
     this.abortController = new LinkedAbortController(config.abortSignal);
 
     this.shouldFocusError = config.shouldFocusError ?? true;
-    this.skipLazyUpdate = false;
+    this.forceFormUpdate = false;
 
     this.config = {
       ...config,
@@ -374,13 +374,16 @@ export class Form<
       : ({} as any);
 
     this.setError = (...args) => {
-      this.skipLazyUpdate = true;
+      this.forceFormUpdate = true;
       return this.originalForm.setError(...args);
     };
-    this.clearErrors = this.originalForm.clearErrors;
+    this.clearErrors = (...args) => {
+      this.forceFormUpdate = true;
+      return this.originalForm.clearErrors(...args);
+    };
     this.trigger = this.originalForm.trigger;
     this.resetField = (...args) => {
-      this.skipLazyUpdate = true;
+      this.forceFormUpdate = true;
       return this.originalForm.resetField(...args);
     };
     this.unregister = this.originalForm.unregister;
@@ -388,12 +391,12 @@ export class Form<
     this.register = this.originalForm.register;
     this.setFocus = this.originalForm.setFocus;
     this.setValue = (...args) => {
-      this.skipLazyUpdate = true;
+      this.forceFormUpdate = true;
       return this.originalForm.setValue(...args);
     };
     this.getValues = this.originalForm.getValues;
     this.resetForm = (...args) => {
-      this.skipLazyUpdate = true;
+      this.forceFormUpdate = true;
       return this.originalForm.reset(...args);
     };
 
@@ -427,8 +430,8 @@ export class Form<
         validatingFields: true,
       },
       callback: (rawFormState) => {
-        if (this.config.lazyUpdates === false || this.skipLazyUpdate) {
-          this.skipLazyUpdate = false;
+        if (this.forceFormUpdate || this.config.lazyUpdates === false) {
+          this.forceFormUpdate = false;
           this.updateFormState(rawFormState);
         } else {
           this.scheduleUpdateFormState(rawFormState);

@@ -150,7 +150,7 @@ describe('form', () => {
 
     form.clearErrors('name');
 
-    expect(form.errors).toHaveProperty('name');
+    expect(form.errors).toEqual({});
   });
 
   it('should handle field reset', () => {
