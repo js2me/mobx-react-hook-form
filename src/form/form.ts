@@ -13,7 +13,6 @@ import {
   type FieldValues,
   type FormState,
   type SetValueConfig,
-  set,
   type UseFormClearErrors,
   type UseFormGetValues,
   type UseFormRegister,
@@ -374,10 +373,10 @@ export class Form<
       ? { ...config.defaultValues }
       : ({} as any);
 
-    this.setError = action((...args) => {
-      set(this.errors, args[0], args[1]);
+    this.setError = (...args) => {
+      this.skipLazyUpdate = true;
       return this.originalForm.setError(...args);
-    });
+    };
     this.clearErrors = this.originalForm.clearErrors;
     this.trigger = this.originalForm.trigger;
     this.resetField = (...args) => {

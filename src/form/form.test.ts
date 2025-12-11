@@ -1337,4 +1337,361 @@ describe('form', () => {
       });
     });
   });
+
+  describe('setError', () => {
+    it('should set error for a simple field', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      form.setError('name', { type: 'required', message: 'Name is required' });
+
+      expect(form.errors).toHaveProperty('name');
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: 'Name is required',
+      });
+    });
+
+    it('should set error for a nested field', () => {
+      const form = createForm({
+        defaultValues: {
+          user: {
+            name: 'John',
+          },
+        },
+      });
+
+      form.setError('user.name', {
+        type: 'required',
+        message: 'Name is required',
+      });
+
+      expect(form.errors).toHaveProperty('user');
+      expect(form.errors.user).toHaveProperty('name');
+      expect(form.errors.user?.name).toEqual({
+        type: 'required',
+        message: 'Name is required',
+      });
+    });
+
+    it('should set error for an array field', () => {
+      const form = createForm({
+        defaultValues: {
+          items: ['item1', 'item2'],
+        },
+      });
+
+      form.setError('items.0', {
+        type: 'required',
+        message: 'Item is required',
+      });
+
+      expect(form.errors).toHaveProperty('items');
+      expect(form.errors.items).toHaveProperty('0');
+      expect(form.errors.items?.[0]).toEqual({
+        type: 'required',
+        message: 'Item is required',
+      });
+    });
+
+    it('should set error with different error types', () => {
+      const form = createForm({
+        defaultValues: {
+          email: 'john@example.com',
+        },
+      });
+
+      form.setError('email', { type: 'email', message: 'Invalid email' });
+
+      expect(form.errors.email).toEqual({
+        type: 'email',
+        message: 'Invalid email',
+      });
+    });
+
+    it('should set error with custom error message', () => {
+      const form = createForm({
+        defaultValues: {
+          password: '123456',
+        },
+      });
+
+      form.setError('password', {
+        type: 'minLength',
+        message: 'Password too short',
+      });
+
+      expect(form.errors.password).toEqual({
+        type: 'minLength',
+        message: 'Password too short',
+      });
+    });
+
+    it('should override existing error for same field', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      form.setError('name', { type: 'required', message: 'Name is required' });
+      form.setError('name', { type: 'maxLength', message: 'Name too long' });
+
+      expect(form.errors.name).toEqual({
+        type: 'maxLength',
+        message: 'Name too long',
+      });
+    });
+
+    it('should set multiple errors for different fields', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+          email: 'john@example.com',
+        },
+      });
+
+      form.setError('name', { type: 'required', message: 'Name is required' });
+      form.setError('email', { type: 'email', message: 'Invalid email' });
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: 'Name is required',
+      });
+      expect(form.errors.email).toEqual({
+        type: 'email',
+        message: 'Invalid email',
+      });
+    });
+
+    it('should set error for deeply nested field', () => {
+      const form = createForm({
+        defaultValues: {
+          user: {
+            profile: {
+              contact: {
+                email: 'john@example.com',
+              },
+            },
+          },
+        },
+      });
+
+      form.setError('user.profile.contact.email', {
+        type: 'required',
+        message: 'Email is required',
+      });
+
+      expect(form.errors.user).toHaveProperty('profile');
+      expect(form.errors.user?.profile).toHaveProperty('contact');
+      expect(form.errors.user?.profile?.contact).toHaveProperty('email');
+      expect(form.errors.user?.profile?.contact?.email).toEqual({
+        type: 'required',
+        message: 'Email is required',
+      });
+    });
+
+    it('should set error for array item with complex structure', () => {
+      const form = createForm({
+        defaultValues: {
+          users: [
+            { id: 1, name: 'John' },
+            { id: 2, name: 'Jane' },
+          ],
+        },
+      });
+
+      form.setError('users.1.name', {
+        type: 'required',
+        message: 'User name is required',
+      });
+
+      expect(form.errors.users).toHaveProperty('1');
+      expect(form.errors.users?.[1]).toHaveProperty('name');
+      expect(form.errors.users?.[1]?.name).toEqual({
+        type: 'required',
+        message: 'User name is required',
+      });
+    });
+
+    it('should set error with empty message', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      form.setError('name', { type: 'required', message: '' });
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: '',
+      });
+    });
+
+    it('should set error with undefined message', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      form.setError('name', { type: 'required' });
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: undefined,
+      });
+    });
+
+    it('should set error with no message property', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      form.setError('name', { type: 'required' });
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: undefined,
+      });
+    });
+
+    it('should set error with null message', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      // @ts-expect-error just for testing
+      form.setError('name', { type: 'required', message: null });
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: null,
+      });
+    });
+
+    it('should set error with numeric type', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      // @ts-expect-error just for testing
+      form.setError('name', { type: 123, message: 'Numeric type error' });
+
+      expect(form.errors.name).toEqual({
+        type: 123,
+        message: 'Numeric type error',
+      });
+    });
+
+    it('should set error with boolean type', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      // @ts-expect-error just for testing
+      form.setError('name', { type: true, message: 'Boolean type error' });
+
+      expect(form.errors.name).toEqual({
+        type: true,
+        message: 'Boolean type error',
+      });
+    });
+
+    it('should set error with object type', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      const errorObject = { custom: 'error' };
+      form.setError('name', {
+        // @ts-expect-error just for testing
+        type: errorObject,
+        message: 'Object type error',
+      });
+
+      expect(form.errors.name).toEqual({
+        type: errorObject,
+        message: 'Object type error',
+      });
+    });
+
+    it('should set error with array type', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      const errorArray = ['error1', 'error2'];
+      // @ts-expect-error just for testing
+      form.setError('name', { type: errorArray, message: 'Array type error' });
+
+      expect(form.errors.name).toEqual({
+        type: errorArray,
+        message: 'Array type error',
+      });
+    });
+
+    it('should set error for field that does not exist in defaultValues', () => {
+      const form = createForm({
+        defaultValues: {
+          name: 'John',
+        },
+      });
+
+      // @ts-expect-error just for testing
+      form.setError('nonExistentField', {
+        type: 'required',
+        message: 'Field required',
+      });
+
+      // @ts-expect-error just for testing
+      expect(form.errors.nonExistentField).toEqual({
+        type: 'required',
+        message: 'Field required',
+      });
+    });
+
+    it('should set error for field with special characters in name', () => {
+      const form = createForm({
+        defaultValues: {
+          'field-with-dashes': 'value',
+          field_with_underscores: 'value',
+        },
+      });
+
+      form.setError('field-with-dashes', {
+        type: 'required',
+        message: 'Required',
+      });
+      form.setError('field_with_underscores', {
+        type: 'required',
+        message: 'Required',
+      });
+
+      expect(form.errors['field-with-dashes']).toEqual({
+        type: 'required',
+        message: 'Required',
+      });
+      expect(form.errors.field_with_underscores).toEqual({
+        type: 'required',
+        message: 'Required',
+      });
+    });
+  });
 });
