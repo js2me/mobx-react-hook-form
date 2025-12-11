@@ -1,12 +1,5 @@
 import { LinkedAbortController } from 'linked-abort-controller';
-import {
-  action,
-  computed,
-  isObservableObject,
-  makeObservable,
-  observable,
-  toJS,
-} from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import type { BaseSyntheticEvent } from 'react';
 import {
   type Control,
@@ -400,22 +393,10 @@ export class Form<
       return this.originalForm.setValue(...args);
     };
     this.getValues = this.originalForm.getValues;
-    this.resetForm = action((...args) => {
-      let defaultValues = (args[0] ?? this.defaultValues) as TFieldValues;
-
-      if (isObservableObject(defaultValues)) {
-        defaultValues = toJS(defaultValues);
-      } else {
-        defaultValues = structuredClone(toJS(defaultValues));
-      }
-
-      this._observableStruct.set({
-        ...this._observableStruct.data,
-        values: defaultValues,
-      });
-
+    this.resetForm = (...args) => {
+      this.skipLazyUpdate = true;
       return this.originalForm.reset(...args);
-    });
+    };
 
     this._observableStruct = new DeepObservableStruct({
       values: this.originalForm.getValues(),

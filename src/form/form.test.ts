@@ -651,7 +651,10 @@ describe('form', () => {
 
       form.resetForm({});
 
-      expect(form.values).toEqual({});
+      expect(form.values).toEqual({
+        field1: 'value1',
+        field2: 'value2',
+      });
     });
 
     it('should reset form with partial values', async () => {
