@@ -758,290 +758,583 @@ describe('form', () => {
   });
 
   describe('resetField', () => {
-    it('should reset field to default value', () => {
-      const form = createForm({
-        defaultValues: {
-          name: 'John',
-          age: 30,
-        },
-      });
-
-      form.setValue('name', 'Jane');
-      expect(form.values.name).toBe('Jane');
-
-      form.resetField('name');
-      expect(form.values.name).toBe('Jane');
-    });
-
-    it('should reset field with nested path', () => {
-      const form = createForm({
-        defaultValues: {
-          user: {
-            profile: {
-              name: 'John',
-            },
+    describe('using "defaultValues" property in constructor', () => {
+      it('should reset field to default value', () => {
+        const form = createForm({
+          defaultValues: {
+            name: 'John',
+            age: 30,
           },
-        },
+        });
+
+        form.setValue('name', 'Jane');
+        expect(form.values.name).toBe('Jane');
+
+        form.resetField('name');
+        expect(form.values.name).toBe('Jane');
       });
 
-      form.setValue('user.profile.name', 'Jane');
-      expect(form.values.user.profile.name).toBe('Jane');
-
-      form.resetField('user.profile.name');
-      expect(form.values.user.profile.name).toBe('Jane');
-    });
-
-    it('should reset field with array index', () => {
-      const form = createForm({
-        defaultValues: {
-          items: ['item1', 'item2', 'item3'],
-        },
-      });
-
-      form.setValue('items.1', 'modifiedItem');
-      expect(form.values.items[1]).toBe('modifiedItem');
-
-      form.resetField('items.1');
-      expect(form.values.items[1]).toBe('modifiedItem');
-    });
-
-    it('should reset field with complex nested path', () => {
-      const form = createForm({
-        defaultValues: {
-          level1: {
-            level2: {
-              level3: {
-                value: 'deepValue',
-              },
-            },
-          },
-        },
-      });
-
-      form.setValue('level1.level2.level3.value', 'modifiedValue');
-      expect(form.values.level1.level2.level3.value).toBe('modifiedValue');
-
-      form.resetField('level1.level2.level3.value');
-      expect(form.values.level1.level2.level3.value).toBe('modifiedValue');
-    });
-
-    it('should reset field with mixed data types', () => {
-      const form = createForm({
-        defaultValues: {
-          stringField: 'initial',
-          numberField: 42,
-          booleanField: true,
-          nullField: null,
-          arrayField: [1, 2, 3],
-        },
-      });
-
-      form.setValue('stringField', 'changed');
-      form.setValue('numberField', 100);
-      form.setValue('booleanField', false);
-      form.setValue('nullField', null);
-      form.setValue('arrayField.0', 999);
-
-      form.resetField('stringField');
-      form.resetField('numberField');
-      form.resetField('booleanField');
-      form.resetField('nullField');
-      form.resetField('arrayField.0');
-
-      expect(form.values.stringField).toBe('changed');
-      expect(form.values.numberField).toBe(100);
-      expect(form.values.booleanField).toBe(false);
-      expect(form.values.nullField).toBeNull();
-      expect(form.values.arrayField[0]).toBe(999);
-    });
-
-    it('should reset field with undefined default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: undefined as Maybe<string>,
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1', 'changed');
-      expect(form.values.field1).toBe('changed');
-
-      form.resetField('field1');
-      expect(form.values.field1).toBe('changed');
-    });
-
-    it('should reset field with null default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: null as Maybe<string>,
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1', 'changed');
-      expect(form.values.field1).toBe('changed');
-
-      form.resetField('field1');
-      expect(form.values.field1).toBe('changed');
-    });
-
-    it('should reset field with empty string default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: '',
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1', 'changed');
-      expect(form.values.field1).toBe('changed');
-
-      form.resetField('field1');
-      expect(form.values.field1).toBe('changed');
-    });
-
-    it('should reset field with zero default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: 0,
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1', 42);
-      expect(form.values.field1).toBe(42);
-
-      form.resetField('field1');
-      expect(form.values.field1).toBe(42);
-    });
-
-    it('should reset field with false default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: false,
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1', true);
-      expect(form.values.field1).toBe(true);
-
-      form.resetField('field1');
-      expect(form.values.field1).toBe(true);
-    });
-
-    it('should reset field with boolean true default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: true,
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1', false);
-      expect(form.values.field1).toBe(false);
-
-      form.resetField('field1');
-      expect(form.values.field1).toBe(false);
-    });
-
-    it('should reset field with array default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: ['item1', 'item2'],
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1.0', 'modified');
-      expect(form.values.field1[0]).toBe('modified');
-
-      form.resetField('field1');
-      expect(form.values.field1).toEqual(['modified', 'item2']);
-    });
-
-    it('should reset field with object default value', () => {
-      const form = createForm({
-        defaultValues: {
-          field1: { nested: 'value' },
-          field2: 'default',
-        },
-      });
-
-      form.setValue('field1.nested', 'modified');
-      expect(form.values.field1.nested).toBe('modified');
-
-      form.resetField('field1');
-      expect(form.values.field1).toEqual({ nested: 'modified' });
-    });
-
-    it('should reset field with deeply nested object', () => {
-      const form = createForm({
-        defaultValues: {
-          data: {
+      it('should reset field with nested path', () => {
+        const form = createForm({
+          defaultValues: {
             user: {
               profile: {
                 name: 'John',
               },
             },
           },
-        },
+        });
+
+        form.setValue('user.profile.name', 'Jane');
+        expect(form.values.user.profile.name).toBe('Jane');
+
+        form.resetField('user.profile.name');
+        expect(form.values.user.profile.name).toBe('Jane');
       });
 
-      form.setValue('data.user.profile.name', 'Jane');
-      expect(form.values.data.user.profile.name).toBe('Jane');
-
-      form.resetField('data.user.profile.name');
-      expect(form.values.data.user.profile.name).toBe('Jane');
-    });
-
-    it('should reset field with deeply nested array', async () => {
-      const form = createForm({
-        defaultValues: {
-          data: {
-            items: [
-              { id: 1, name: 'item1' },
-              { id: 2, name: 'item2' },
-            ],
+      it('should reset field with array index', () => {
+        const form = createForm({
+          defaultValues: {
+            items: ['item1', 'item2', 'item3'],
           },
-        },
+        });
+
+        form.setValue('items.1', 'modifiedItem');
+        expect(form.values.items[1]).toBe('modifiedItem');
+
+        form.resetField('items.1');
+        expect(form.values.items[1]).toBe('modifiedItem');
       });
 
-      form.setValue('data.items.0.name', 'modifiedItem1');
-      expect(form.values.data.items[0].name).toBe('modifiedItem1');
-
-      form.resetField('data.items.0.name');
-      expect(form.values.data.items[0].name).toBe('modifiedItem1');
-      await sleep(100);
-      expect(form.values.data.items[0].name).toBe('modifiedItem1');
-
-      form.originalForm.resetField('data.items.0.name');
-      expect(form.values.data.items[0].name).toBe('modifiedItem1');
-      await sleep(100);
-      expect(form.values.data.items[0].name).toBe('modifiedItem1');
-    });
-
-    it('should reset field with complex nested array structure', () => {
-      const form = createForm({
-        defaultValues: {
-          complex: {
-            levels: [
-              {
-                data: [
-                  { id: 1, value: 'initial1' },
-                  { id: 2, value: 'initial2' },
-                ],
+      it('should reset field with complex nested path', () => {
+        const form = createForm({
+          defaultValues: {
+            level1: {
+              level2: {
+                level3: {
+                  value: 'deepValue',
+                },
               },
-            ],
+            },
           },
-        },
+        });
+
+        form.setValue('level1.level2.level3.value', 'modifiedValue');
+        expect(form.values.level1.level2.level3.value).toBe('modifiedValue');
+
+        form.resetField('level1.level2.level3.value');
+        expect(form.values.level1.level2.level3.value).toBe('modifiedValue');
       });
 
-      form.setValue('complex.levels.0.data.0.value', 'modified1');
-      expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+      it('should reset field with mixed data types', () => {
+        const form = createForm({
+          defaultValues: {
+            stringField: 'initial',
+            numberField: 42,
+            booleanField: true,
+            nullField: null,
+            arrayField: [1, 2, 3],
+          },
+        });
 
-      form.resetField('complex.levels.0.data.0.value');
-      expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+        form.setValue('stringField', 'changed');
+        form.setValue('numberField', 100);
+        form.setValue('booleanField', false);
+        form.setValue('nullField', null);
+        form.setValue('arrayField.0', 999);
+
+        form.resetField('stringField');
+        form.resetField('numberField');
+        form.resetField('booleanField');
+        form.resetField('nullField');
+        form.resetField('arrayField.0');
+
+        expect(form.values.stringField).toBe('changed');
+        expect(form.values.numberField).toBe(100);
+        expect(form.values.booleanField).toBe(false);
+        expect(form.values.nullField).toBeNull();
+        expect(form.values.arrayField[0]).toBe(999);
+      });
+
+      it('should reset field with undefined default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: undefined as Maybe<string>,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 'changed');
+        expect(form.values.field1).toBe('changed');
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe('changed');
+      });
+
+      it('should reset field with null default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: null as Maybe<string>,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 'changed');
+        expect(form.values.field1).toBe('changed');
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe('changed');
+      });
+
+      it('should reset field with empty string default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: '',
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 'changed');
+        expect(form.values.field1).toBe('changed');
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe('changed');
+      });
+
+      it('should reset field with zero default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: 0,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 42);
+        expect(form.values.field1).toBe(42);
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe(42);
+      });
+
+      it('should reset field with false default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: false,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', true);
+        expect(form.values.field1).toBe(true);
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe(true);
+      });
+
+      it('should reset field with boolean true default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: true,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', false);
+        expect(form.values.field1).toBe(false);
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe(false);
+      });
+
+      it('should reset field with array default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: ['item1', 'item2'],
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1.0', 'modified');
+        expect(form.values.field1[0]).toBe('modified');
+
+        form.resetField('field1');
+        expect(form.values.field1).toEqual(['modified', 'item2']);
+      });
+
+      it('should reset field with object default value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: { nested: 'value' },
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1.nested', 'modified');
+        expect(form.values.field1.nested).toBe('modified');
+
+        form.resetField('field1');
+        expect(form.values.field1).toEqual({ nested: 'modified' });
+      });
+
+      it('should reset field with deeply nested object', () => {
+        const form = createForm({
+          defaultValues: {
+            data: {
+              user: {
+                profile: {
+                  name: 'John',
+                },
+              },
+            },
+          },
+        });
+
+        form.setValue('data.user.profile.name', 'Jane');
+        expect(form.values.data.user.profile.name).toBe('Jane');
+
+        form.resetField('data.user.profile.name');
+        expect(form.values.data.user.profile.name).toBe('Jane');
+      });
+
+      it('should reset field with deeply nested array', async () => {
+        const form = createForm({
+          defaultValues: {
+            data: {
+              items: [
+                { id: 1, name: 'item1' },
+                { id: 2, name: 'item2' },
+              ],
+            },
+          },
+        });
+
+        form.setValue('data.items.0.name', 'modifiedItem1');
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+
+        form.resetField('data.items.0.name');
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+        await sleep(100);
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+
+        form.originalForm.resetField('data.items.0.name');
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+        await sleep(100);
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+      });
+
+      it('should reset field with complex nested array structure', () => {
+        const form = createForm({
+          defaultValues: {
+            complex: {
+              levels: [
+                {
+                  data: [
+                    { id: 1, value: 'initial1' },
+                    { id: 2, value: 'initial2' },
+                  ],
+                },
+              ],
+            },
+          },
+        });
+
+        form.setValue('complex.levels.0.data.0.value', 'modified1');
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+
+        form.resetField('complex.levels.0.data.0.value');
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+      });
+    });
+
+    describe('using "values" property in constructor', () => {
+      // Эти тесты проверяют поведение resetField когда мы используем значения из values, а не defaultValues
+      it('should reset field to current value when no default value', () => {
+        const form = createForm({
+          values: {
+            name: 'John',
+            age: 30,
+          },
+        });
+
+        // Устанавливаем значение через setValue
+        form.setValue('name', 'Jane');
+        expect(form.values.name).toBe('Jane');
+
+        // Сбрасываем поле - должно вернуться к значению из values, а не default
+        form.resetField('name');
+        expect(form.values.name).toBe('Jane');
+      });
+
+      it('should reset field with nested path using current values', () => {
+        const form = createForm({
+          values: {
+            user: {
+              profile: {
+                name: 'John',
+              },
+            },
+          },
+        });
+
+        form.setValue('user.profile.name', 'Jane');
+        expect(form.values.user.profile.name).toBe('Jane');
+
+        form.resetField('user.profile.name');
+        expect(form.values.user.profile.name).toBe('Jane');
+      });
+
+      it('should reset field with array index using current values', () => {
+        const form = createForm({
+          values: {
+            items: ['item1', 'item2', 'item3'],
+          },
+        });
+
+        form.setValue('items.1', 'modifiedItem');
+        expect(form.values.items[1]).toBe('modifiedItem');
+
+        form.resetField('items.1');
+        expect(form.values.items[1]).toBe('modifiedItem');
+      });
+
+      it('should reset field with complex nested path using current values', () => {
+        const form = createForm({
+          values: {
+            level1: {
+              level2: {
+                level3: {
+                  value: 'deepValue',
+                },
+              },
+            },
+          },
+        });
+
+        form.setValue('level1.level2.level3.value', 'modifiedValue');
+        expect(form.values.level1.level2.level3.value).toBe('modifiedValue');
+
+        form.resetField('level1.level2.level3.value');
+        expect(form.values.level1.level2.level3.value).toBe('modifiedValue');
+      });
+
+      it('should reset field with mixed data types using current values', () => {
+        const form = createForm({
+          values: {
+            stringField: 'initial',
+            numberField: 42,
+            booleanField: true,
+            nullField: null,
+            arrayField: [1, 2, 3],
+          },
+        });
+
+        form.setValue('stringField', 'changed');
+        form.setValue('numberField', 100);
+        form.setValue('booleanField', false);
+        form.setValue('nullField', null);
+        form.setValue('arrayField.0', 999);
+
+        form.resetField('stringField');
+        form.resetField('numberField');
+        form.resetField('booleanField');
+        form.resetField('nullField');
+        form.resetField('arrayField.0');
+
+        expect(form.values.stringField).toBe('changed');
+        expect(form.values.numberField).toBe(100);
+        expect(form.values.booleanField).toBe(false);
+        expect(form.values.nullField).toBeNull();
+        expect(form.values.arrayField[0]).toBe(999);
+      });
+
+      it('should reset field with undefined current value', () => {
+        const form = createForm({
+          values: {
+            field1: undefined as Maybe<string>,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 'changed');
+        expect(form.values.field1).toBe('changed');
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe('changed');
+      });
+
+      it('should reset field with null current value', () => {
+        const form = createForm({
+          values: {
+            field1: null as Maybe<string>,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 'changed');
+        expect(form.values.field1).toBe('changed');
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe('changed');
+      });
+
+      it('should reset field with empty string current value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: '',
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 'changed');
+        expect(form.values.field1).toBe('changed');
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe('changed');
+      });
+
+      it('should reset field with zero current value', () => {
+        const form = createForm({
+          values: {
+            field1: 0,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', 42);
+        expect(form.values.field1).toBe(42);
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe(42);
+      });
+
+      it('should reset field with false current value', () => {
+        const form = createForm({
+          values: {
+            field1: false,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', true);
+        expect(form.values.field1).toBe(true);
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe(true);
+      });
+
+      it('should reset field with boolean true current value', () => {
+        const form = createForm({
+          values: {
+            field1: true,
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1', false);
+        expect(form.values.field1).toBe(false);
+
+        form.resetField('field1');
+        expect(form.values.field1).toBe(false);
+      });
+
+      it('should reset field with array current value', () => {
+        const form = createForm({
+          defaultValues: {
+            field1: ['item1', 'item2'],
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1.0', 'modified');
+        expect(form.values.field1[0]).toBe('modified');
+
+        form.resetField('field1');
+        expect(form.values.field1).toEqual(['modified', 'item2']);
+      });
+
+      it('should reset field with object current value', () => {
+        const form = createForm({
+          values: {
+            field1: { nested: 'value' },
+            field2: 'default',
+          },
+        });
+
+        form.setValue('field1.nested', 'modified');
+        expect(form.values.field1.nested).toBe('modified');
+
+        form.resetField('field1');
+        expect(form.values.field1).toEqual({ nested: 'modified' });
+      });
+
+      it('should reset field with deeply nested object using current values', () => {
+        const form = createForm({
+          values: {
+            data: {
+              user: {
+                profile: {
+                  name: 'John',
+                },
+              },
+            },
+          },
+        });
+
+        form.setValue('data.user.profile.name', 'Jane');
+        expect(form.values.data.user.profile.name).toBe('Jane');
+
+        form.resetField('data.user.profile.name');
+        expect(form.values.data.user.profile.name).toBe('Jane');
+      });
+
+      it('should reset field with deeply nested array using current values', async () => {
+        const form = createForm({
+          values: {
+            data: {
+              items: [
+                { id: 1, name: 'item1' },
+                { id: 2, name: 'item2' },
+              ],
+            },
+          },
+        });
+
+        form.setValue('data.items.0.name', 'modifiedItem1');
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+
+        form.resetField('data.items.0.name');
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+        await sleep(100);
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+
+        form.originalForm.resetField('data.items.0.name');
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+        await sleep(100);
+        expect(form.values.data.items[0].name).toBe('modifiedItem1');
+      });
+
+      it('should reset field with complex nested array structure using current values', () => {
+        const form = createForm({
+          values: {
+            complex: {
+              levels: [
+                {
+                  data: [
+                    { id: 1, value: 'initial1' },
+                    { id: 2, value: 'initial2' },
+                  ],
+                },
+              ],
+            },
+          },
+        });
+
+        form.setValue('complex.levels.0.data.0.value', 'modified1');
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+
+        form.resetField('complex.levels.0.data.0.value');
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+      });
     });
   });
 });
