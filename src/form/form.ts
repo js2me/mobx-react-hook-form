@@ -19,7 +19,6 @@ import {
   type FieldPathValue,
   type FieldValues,
   type FormState,
-  get,
   type SetValueConfig,
   set,
   type UseFormClearErrors,
@@ -349,10 +348,15 @@ export class Form<
 
   private config: FormParams<TFieldValues, TContext, TTransformedValues>;
 
+  // special hack to apply the same form value changes from the original form
+  // using subscription
+  private skipLazyUpdate: boolean;
+
   constructor(config: FormParams<TFieldValues, TContext, TTransformedValues>) {
     this.abortController = new LinkedAbortController(config.abortSignal);
 
     this.shouldFocusError = config.shouldFocusError ?? true;
+    this.skipLazyUpdate = false;
 
     this.config = {
       ...config,
@@ -383,18 +387,18 @@ export class Form<
     });
     this.clearErrors = this.originalForm.clearErrors;
     this.trigger = this.originalForm.trigger;
-    this.resetField = action((...args) => {
-      set(this.values, args[0], get(this.defaultValues, args[0]));
+    this.resetField = (...args) => {
+      this.skipLazyUpdate = true;
       return this.originalForm.resetField(...args);
-    });
+    };
     this.unregister = this.originalForm.unregister;
     this.control = this.originalForm.control;
     this.register = this.originalForm.register;
     this.setFocus = this.originalForm.setFocus;
-    this.setValue = action((...args) => {
-      set(this.values, args[0], args[1]);
+    this.setValue = (...args) => {
+      this.skipLazyUpdate = true;
       return this.originalForm.setValue(...args);
-    });
+    };
     this.getValues = this.originalForm.getValues;
     this.resetForm = action((...args) => {
       let defaultValues = (args[0] ?? this.defaultValues) as TFieldValues;
@@ -443,7 +447,8 @@ export class Form<
         validatingFields: true,
       },
       callback: (rawFormState) => {
-        if (this.config.lazyUpdates === false) {
+        if (this.config.lazyUpdates === false || this.skipLazyUpdate) {
+          this.skipLazyUpdate = false;
           this.updateFormState(rawFormState);
         } else {
           this.scheduleUpdateFormState(rawFormState);
