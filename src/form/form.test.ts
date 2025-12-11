@@ -292,4 +292,272 @@ describe('form', () => {
     // Instead we'll test that destroy method is called without errors
     expect(() => form.destroy()).not.toThrow();
   });
+
+  it('should handle complex nested values', () => {
+    const form = createForm({
+      defaultValues: {
+        user: {
+          profile: {
+            name: 'John',
+            age: 30,
+          },
+          settings: {
+            theme: 'light',
+            notifications: true,
+          },
+        },
+        items: ['item1', 'item2'],
+      },
+    });
+
+    expect(form.values).toEqual({
+      user: {
+        profile: {
+          name: 'John',
+          age: 30,
+        },
+        settings: {
+          theme: 'light',
+          notifications: true,
+        },
+      },
+      items: ['item1', 'item2'],
+    });
+  });
+
+  it('should handle array field operations', () => {
+    const form = createForm({
+      defaultValues: {
+        items: ['item1', 'item2', 'item3'],
+      },
+    });
+
+    // Test setting array item
+    form.setValue('items.1', 'modifiedItem');
+    expect(form.values.items[1]).toBe('modifiedItem');
+
+    // Test getting array item
+    const item = form.getValues('items.0');
+    expect(item).toBe('item1');
+  });
+
+  it('should handle form with complex validation rules', () => {
+    const form = createForm({
+      defaultValues: {
+        email: '',
+        password: '',
+        confirmPassword: '',
+      },
+    });
+
+    // Set multiple errors
+    form.setError('email', { type: 'required', message: 'Email is required' });
+    form.setError('password', {
+      type: 'minLength',
+      message: 'Password too short',
+    });
+
+    expect(form.errors.email).toEqual({
+      type: 'required',
+      message: 'Email is required',
+    });
+    expect(form.errors.password).toEqual({
+      type: 'minLength',
+      message: 'Password too short',
+    });
+  });
+
+  it('should handle form with custom validation and trigger', async () => {
+    const form = createForm({
+      defaultValues: {
+        name: 'John',
+        age: 25,
+      },
+    });
+
+    // Test that trigger method exists and can be called
+    const result = await form.trigger();
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('should handle form with abort signal', () => {
+    const controller = new AbortController();
+    const form = createForm({
+      defaultValues: {
+        name: 'John',
+      },
+      abortSignal: controller.signal,
+    });
+
+    // Check that form was created with abort signal
+    expect(form).toBeDefined();
+  });
+
+  it('should handle form with lazy updates disabled', () => {
+    const form = createForm({
+      defaultValues: {
+        name: 'John',
+      },
+      lazyUpdates: false,
+    });
+
+    expect(form).toBeDefined();
+  });
+
+  it('should handle form with custom submit handler', async () => {
+    const onSubmit = vi.fn();
+    const form = createForm({
+      defaultValues: {
+        name: 'John',
+      },
+      onSubmit,
+    });
+
+    // Test that form can be submitted
+    await form.submit();
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it('should handle form with strict submit checks', async () => {
+    const onSubmitFailed = vi.fn();
+    const form = createForm({
+      defaultValues: {
+        name: 'John',
+      },
+      onSubmitFailed,
+      strictSubmitChecks: true,
+    });
+
+    // Set an error
+    form.setError('name', { type: 'required', message: 'Required' });
+
+    // Should reject with errors
+    await expect(form.submit()).rejects.toEqual(form.errors);
+    expect(onSubmitFailed).toHaveBeenCalled();
+  });
+
+  it('should handle form with onReset handler', () => {
+    const onReset = vi.fn();
+    const form = createForm({
+      defaultValues: {
+        name: 'John',
+      },
+      onReset,
+    });
+
+    // Test that reset method exists and can be called
+    form.reset();
+    expect(onReset).toHaveBeenCalled();
+  });
+
+  it('should handle form with complex error paths', () => {
+    const form = createForm({
+      defaultValues: {
+        user: {
+          profile: {
+            contact: {
+              email: 'john@example.com',
+              phone: '123-456-7890',
+            },
+          },
+        },
+      },
+    });
+
+    // Set nested error
+    form.setError('user.profile.contact.email', {
+      type: 'invalid',
+      message: 'Invalid email',
+    });
+
+    const errorsWithPath = form.getErrorsWithPaths();
+    expect(errorsWithPath).toHaveLength(1);
+    expect(errorsWithPath[0].path).toBe('user.profile.contact.email');
+  });
+
+  it('should handle form with multiple field errors', () => {
+    const form = createForm({
+      defaultValues: {
+        field1: 'value1',
+        field2: 'value2',
+        field3: 'value3',
+      },
+    });
+
+    // Set multiple errors
+    form.setError('field1', { type: 'required', message: 'Required' });
+    form.setError('field2', { type: 'pattern', message: 'Pattern mismatch' });
+    form.setError('field3', { type: 'custom', message: 'Custom error' });
+
+    expect(form.errors.field1).toEqual({
+      type: 'required',
+      message: 'Required',
+    });
+    expect(form.errors.field2).toEqual({
+      type: 'pattern',
+      message: 'Pattern mismatch',
+    });
+    expect(form.errors.field3).toEqual({
+      type: 'custom',
+      message: 'Custom error',
+    });
+  });
+
+  it('should handle form with empty default values', () => {
+    const form = createForm({
+      defaultValues: {},
+    });
+
+    expect(form.values).toEqual({});
+    expect(form.defaultValues).toEqual({});
+  });
+
+  it('should handle form with undefined default values', () => {
+    const form = createForm({
+      defaultValues: undefined,
+    });
+
+    expect(form.values).toEqual({});
+    expect(form.defaultValues).toEqual({});
+  });
+
+  it('should handle form with mixed data types', () => {
+    const form = createForm({
+      defaultValues: {
+        stringField: 'string',
+        numberField: 42,
+        booleanField: true,
+        nullField: null,
+        undefinedField: undefined,
+        arrayField: [1, 2, 3],
+        objectField: { nested: 'value' },
+      },
+    });
+
+    expect(form.values.stringField).toBe('string');
+    expect(form.values.numberField).toBe(42);
+    expect(form.values.booleanField).toBe(true);
+    expect(form.values.nullField).toBeNull();
+    expect(form.values.undefinedField).toBeUndefined();
+    expect(form.values.arrayField).toEqual([1, 2, 3]);
+    expect(form.values.objectField).toEqual({ nested: 'value' });
+  });
+
+  it('should handle form with deep nested structures', () => {
+    const form = createForm({
+      defaultValues: {
+        level1: {
+          level2: {
+            level3: {
+              level4: {
+                value: 'deepValue',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(form.values.level1.level2.level3.level4.value).toBe('deepValue');
+  });
 });
