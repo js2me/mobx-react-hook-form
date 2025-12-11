@@ -16,7 +16,7 @@ describe('form', () => {
 
     expect(form.values).toEqual({ foo: 4, bar: 2 });
 
-    await sleep();
+    await sleep(10);
 
     expect(form.values).toEqual({ foo: 4, bar: 2 });
   });
@@ -107,7 +107,7 @@ describe('form', () => {
     expect(form.values).toEqual({ name: 'Bob', age: 25 });
   });
 
-  it('should handle field registration', () => {
+  it('should handle field registration', async () => {
     const form = createForm({
       defaultValues: {
         name: 'John',
@@ -119,9 +119,39 @@ describe('form', () => {
     expect(registerResult).toHaveProperty('name');
     expect(registerResult).toHaveProperty('onChange');
     expect(registerResult).toHaveProperty('onBlur');
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
+
+    await sleep(10);
+
+    expect(form.values).toEqual({ name: 'John' });
+
+    expect(form.isValid).toBe(true);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
   });
 
-  it('should handle field errors', () => {
+  it('should handle field errors', async () => {
     const form = createForm({
       defaultValues: {
         name: 'John',
@@ -135,9 +165,51 @@ describe('form', () => {
       type: 'required',
       message: 'Name is required',
     });
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(true);
+    expect(form.errors).toEqual({
+      name: {
+        message: 'Name is required',
+        ref: undefined,
+        type: 'required',
+      },
+    });
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
+
+    await sleep(10);
+
+    expect(form.values).toEqual({ name: 'John' });
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(true);
+    expect(form.errors).toEqual({
+      name: {
+        message: 'Name is required',
+        ref: undefined,
+        type: 'required',
+      },
+    });
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
   });
 
-  it('should clear errors', () => {
+  it('should clear errors', async () => {
     const form = createForm({
       defaultValues: {
         name: 'John',
@@ -151,9 +223,41 @@ describe('form', () => {
     form.clearErrors('name');
 
     expect(form.errors).toEqual({});
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
+
+    await sleep(10);
+
+    expect(form.values).toEqual({
+      name: 'John',
+    });
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
   });
 
-  it('should handle field reset', () => {
+  it('should handle field reset', async () => {
     const form = createForm({
       defaultValues: {
         name: 'John',
@@ -165,6 +269,36 @@ describe('form', () => {
     form.resetField('name');
 
     expect(form.values).toEqual({ name: 'Jane', age: 30 });
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
+
+    await sleep(10);
+
+    expect(form.values).toEqual({ name: 'Jane', age: 30 });
+
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({});
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
   });
 
   it('should handle form state properties', () => {
@@ -186,7 +320,7 @@ describe('form', () => {
     expect(form.isReady).toBe(false);
   });
 
-  it('should handle changeField with validation on submit', () => {
+  it('should handle changeField with validation on submit', async () => {
     const form = createForm({
       defaultValues: {
         name: 'John',
@@ -196,10 +330,73 @@ describe('form', () => {
     form.changeField('name', 'Jane');
     expect(form.values).toEqual({ name: 'Jane' });
 
-    form.isSubmitted = true;
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({
+      name: true,
+    });
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
 
     form.changeField('name', 'Bob');
     expect(form.values).toEqual({ name: 'Bob' });
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({
+      name: true,
+    });
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
+
+    await sleep(10);
+
+    expect(form.values).toEqual({ name: 'Bob' });
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({
+      name: true,
+    });
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
+
+    await sleep(10);
+
+    expect(form.values).toEqual({ name: 'Bob' });
+    expect(form.isValid).toBe(false);
+    expect(form.hasErrors).toBe(false);
+    expect(form.errors).toEqual({});
+    expect(form.isLoading).toBe(false);
+    expect(form.isSubmitting).toBe(false);
+    expect(form.dirtyFields).toEqual({
+      name: true,
+    });
+    expect(form.isReady).toBe(false);
+    expect(form.submitCount).toBe(0);
+    expect(form.isSubmitSuccessful).toBe(false);
+    expect(form.isSubmitted).toBe(false);
+    expect(form.touchedFields).toEqual({});
+    expect(form.validatingFields).toEqual({});
   });
 
   it('should get errors with paths', () => {
@@ -676,7 +873,7 @@ describe('form', () => {
         field3: 'new3',
       });
 
-      await sleep(100);
+      await sleep(10);
 
       expect(form.values).toEqual({
         field1: 'new1',
@@ -1013,12 +1210,12 @@ describe('form', () => {
 
         form.resetField('data.items.0.name');
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
-        await sleep(100);
+        await sleep(10);
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
 
         form.originalForm.resetField('data.items.0.name');
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
-        await sleep(100);
+        await sleep(10);
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
       });
 
@@ -1304,16 +1501,16 @@ describe('form', () => {
 
         form.resetField('data.items.0.name');
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
-        await sleep(100);
+        await sleep(10);
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
 
         form.originalForm.resetField('data.items.0.name');
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
-        await sleep(100);
+        await sleep(10);
         expect(form.values.data.items[0].name).toBe('modifiedItem1');
       });
 
-      it('should reset field with complex nested array structure using current values', () => {
+      it('should reset field with complex nested array structure using current values', async () => {
         const form = createForm({
           values: {
             complex: {
@@ -1331,15 +1528,33 @@ describe('form', () => {
 
         form.setValue('complex.levels.0.data.0.value', 'modified1');
         expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+        expect(form.isDirty).toBe(false);
+        expect(form.touchedFields).toEqual({});
+
+        await sleep(10);
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+        expect(form.isDirty).toBe(false);
+        expect(form.touchedFields).toEqual({});
 
         form.resetField('complex.levels.0.data.0.value');
         expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+
+        expect(form.isDirty).toBe(false);
+        expect(form.touchedFields).toEqual({});
+
+        await sleep(10);
+
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+        expect(form.values.complex.levels[0].data[0].value).toBe('modified1');
+
+        expect(form.isDirty).toBe(false);
+        expect(form.touchedFields).toEqual({});
       });
     });
   });
 
   describe('setError', () => {
-    it('should set error for a simple field', () => {
+    it('should set error for a simple field', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1353,9 +1568,21 @@ describe('form', () => {
         type: 'required',
         message: 'Name is required',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors).toHaveProperty('name');
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: 'Name is required',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error for a nested field', () => {
+    it('should set error for a nested field', async () => {
       const form = createForm({
         defaultValues: {
           user: {
@@ -1375,9 +1602,22 @@ describe('form', () => {
         type: 'required',
         message: 'Name is required',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors).toHaveProperty('user');
+      expect(form.errors.user).toHaveProperty('name');
+      expect(form.errors.user?.name).toEqual({
+        type: 'required',
+        message: 'Name is required',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error for an array field', () => {
+    it('should set error for an array field', async () => {
       const form = createForm({
         defaultValues: {
           items: ['item1', 'item2'],
@@ -1395,9 +1635,22 @@ describe('form', () => {
         type: 'required',
         message: 'Item is required',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors).toHaveProperty('items');
+      expect(form.errors.items).toHaveProperty('0');
+      expect(form.errors.items?.[0]).toEqual({
+        type: 'required',
+        message: 'Item is required',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with different error types', () => {
+    it('should set error with different error types', async () => {
       const form = createForm({
         defaultValues: {
           email: 'john@example.com',
@@ -1410,9 +1663,20 @@ describe('form', () => {
         type: 'email',
         message: 'Invalid email',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.email).toEqual({
+        type: 'email',
+        message: 'Invalid email',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with custom error message', () => {
+    it('should set error with custom error message', async () => {
       const form = createForm({
         defaultValues: {
           password: '123456',
@@ -1428,9 +1692,20 @@ describe('form', () => {
         type: 'minLength',
         message: 'Password too short',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.password).toEqual({
+        type: 'minLength',
+        message: 'Password too short',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should override existing error for same field', () => {
+    it('should override existing error for same field', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1444,9 +1719,20 @@ describe('form', () => {
         type: 'maxLength',
         message: 'Name too long',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 'maxLength',
+        message: 'Name too long',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set multiple errors for different fields', () => {
+    it('should set multiple errors for different fields', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1465,9 +1751,24 @@ describe('form', () => {
         type: 'email',
         message: 'Invalid email',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: 'Name is required',
+      });
+      expect(form.errors.email).toEqual({
+        type: 'email',
+        message: 'Invalid email',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error for deeply nested field', () => {
+    it('should set error for deeply nested field', async () => {
       const form = createForm({
         defaultValues: {
           user: {
@@ -1492,9 +1793,23 @@ describe('form', () => {
         type: 'required',
         message: 'Email is required',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.user).toHaveProperty('profile');
+      expect(form.errors.user?.profile).toHaveProperty('contact');
+      expect(form.errors.user?.profile?.contact).toHaveProperty('email');
+      expect(form.errors.user?.profile?.contact?.email).toEqual({
+        type: 'required',
+        message: 'Email is required',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error for array item with complex structure', () => {
+    it('should set error for array item with complex structure', async () => {
       const form = createForm({
         defaultValues: {
           users: [
@@ -1515,9 +1830,22 @@ describe('form', () => {
         type: 'required',
         message: 'User name is required',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.users).toHaveProperty('1');
+      expect(form.errors.users?.[1]).toHaveProperty('name');
+      expect(form.errors.users?.[1]?.name).toEqual({
+        type: 'required',
+        message: 'User name is required',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with empty message', () => {
+    it('should set error with empty message', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1530,9 +1858,20 @@ describe('form', () => {
         type: 'required',
         message: '',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: '',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with undefined message', () => {
+    it('should set error with undefined message', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1545,9 +1884,20 @@ describe('form', () => {
         type: 'required',
         message: undefined,
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: undefined,
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with no message property', () => {
+    it('should set error with no message property', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1560,9 +1910,20 @@ describe('form', () => {
         type: 'required',
         message: undefined,
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: undefined,
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with null message', () => {
+    it('should set error with null message', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1576,9 +1937,20 @@ describe('form', () => {
         type: 'required',
         message: null,
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 'required',
+        message: null,
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with numeric type', () => {
+    it('should set error with numeric type', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1592,9 +1964,20 @@ describe('form', () => {
         type: 123,
         message: 'Numeric type error',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: 123,
+        message: 'Numeric type error',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with boolean type', () => {
+    it('should set error with boolean type', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1608,9 +1991,20 @@ describe('form', () => {
         type: true,
         message: 'Boolean type error',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: true,
+        message: 'Boolean type error',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with object type', () => {
+    it('should set error with object type', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1628,9 +2022,20 @@ describe('form', () => {
         type: errorObject,
         message: 'Object type error',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: errorObject,
+        message: 'Object type error',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error with array type', () => {
+    it('should set error with array type', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1645,9 +2050,20 @@ describe('form', () => {
         type: errorArray,
         message: 'Array type error',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      expect(form.errors.name).toEqual({
+        type: errorArray,
+        message: 'Array type error',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error for field that does not exist in defaultValues', () => {
+    it('should set error for field that does not exist in defaultValues', async () => {
       const form = createForm({
         defaultValues: {
           name: 'John',
@@ -1665,9 +2081,21 @@ describe('form', () => {
         type: 'required',
         message: 'Field required',
       });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      await sleep(10);
+
+      // @ts-expect-error just for testing
+      expect(form.errors.nonExistentField).toEqual({
+        type: 'required',
+        message: 'Field required',
+      });
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
     });
 
-    it('should set error for field with special characters in name', () => {
+    it('should set error for field with special characters in name', async () => {
       const form = createForm({
         defaultValues: {
           'field-with-dashes': 'value',
@@ -1683,6 +2111,23 @@ describe('form', () => {
         type: 'required',
         message: 'Required',
       });
+
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
+
+      expect(form.errors['field-with-dashes']).toEqual({
+        type: 'required',
+        message: 'Required',
+      });
+      expect(form.errors.field_with_underscores).toEqual({
+        type: 'required',
+        message: 'Required',
+      });
+
+      await sleep(10);
+
+      expect(form.isValid).toBe(false);
+      expect(form.hasErrors).toBe(true);
 
       expect(form.errors['field-with-dashes']).toEqual({
         type: 'required',

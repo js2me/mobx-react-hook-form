@@ -495,7 +495,7 @@ export class Form<
     value: FieldPathValue<TFieldValues, TFieldName> | undefined,
     options?: SetValueConfig,
   ) => {
-    this.setValue(name, value as any, {
+    return this.setValue(name, value as any, {
       shouldDirty: true,
       shouldValidate: this.isSubmitted,
       ...options,
@@ -607,6 +607,7 @@ export class Form<
     touchedFields,
     ...simpleProperties
   }: Partial<FormFullState<TFieldValues>>) {
+    this.stopScheduledFormStateUpdate();
     Object.entries(simpleProperties).forEach(([key, value]) => {
       if (value != null) {
         // @ts-expect-error
