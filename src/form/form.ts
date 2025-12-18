@@ -358,9 +358,7 @@ export class Form<
     };
 
     Object.defineProperty(this.config, 'shouldFocusError', {
-      get() {
-        return this.shouldFocusError;
-      },
+      get: () => this.shouldFocusError,
     });
 
     this.originalForm = createFormControl<
