@@ -355,17 +355,22 @@ export class Form<
       defaultValues: {
         ...config.defaultValues,
       } as DefaultValues<TFieldValues>,
+      shouldFocusError: this.shouldFocusError,
     };
-
-    Object.defineProperty(this.config, 'shouldFocusError', {
-      get: () => this.shouldFocusError,
-    });
 
     this.originalForm = createFormControl<
       TFieldValues,
       TContext,
       TTransformedValues
     >(this.config as any);
+
+    Object.defineProperty(
+      this.originalForm.control._options,
+      'shouldFocusError',
+      {
+        get: () => this.shouldFocusError,
+      },
+    );
 
     const defaultValues = config.defaultValues
       ? { ...config.defaultValues }
