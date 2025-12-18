@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 6.0.2
+
+### Patch Changes
+
+- [`ad584fa`](https://github.com/js2me/mobx-react-hook-form/commit/ad584faa7c5b813716ff3555130d9b5ccc253fd8) Thanks [@js2me](https://github.com/js2me)! - rework dynamic `shouldFocusError` work
+
 ## 6.0.1
 
 ### Patch Changes
