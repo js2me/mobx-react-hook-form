@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 6.1.0
+
+### Minor Changes
+
+- [`07da075`](https://github.com/js2me/mobx-react-hook-form/commit/07da075ab9ece934993be6fb0c405bedc447e092) Thanks [@js2me](https://github.com/js2me)! - added support for reactive `defaultValues` function
+
 ## 6.0.2
 
 ### Patch Changes
