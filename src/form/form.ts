@@ -1,5 +1,12 @@
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, computed, makeObservable, observable } from 'mobx';
+import {
+  action,
+  comparer,
+  computed,
+  makeObservable,
+  observable,
+  reaction,
+} from 'mobx';
 import type { BaseSyntheticEvent } from 'react';
 import {
   type Control,
@@ -53,7 +60,7 @@ export class Form<
    * If you want to change this property
    * Use {resetForm} method
    */
-  defaultValues!: Readonly<DefaultValues<TFieldValues>>;
+  defaultValues: Readonly<DefaultValues<TFieldValues>>;
   dirtyFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>>;
   touchedFields: Partial<Readonly<DeepMap<DeepPartial<TFieldValues>, boolean>>>;
   validatingFields: Partial<
@@ -350,11 +357,18 @@ export class Form<
     this.shouldFocusError = config.shouldFocusError ?? true;
     this.forceFormUpdate = false;
 
+    const defaultValuesRaw = config.defaultValues;
+    const isDefaultValuesRawFn = typeof defaultValuesRaw === 'function';
+
+    const defaultValues = isDefaultValuesRawFn
+      ? defaultValuesRaw()
+      : defaultValuesRaw
+        ? { ...defaultValuesRaw }
+        : ({} as any);
+
     this.config = {
       ...config,
-      defaultValues: {
-        ...config.defaultValues,
-      } as DefaultValues<TFieldValues>,
+      defaultValues: { ...defaultValues } as DefaultValues<TFieldValues>,
       shouldFocusError: this.shouldFocusError,
     };
 
@@ -371,10 +385,6 @@ export class Form<
         get: () => this.shouldFocusError,
       },
     );
-
-    const defaultValues = config.defaultValues
-      ? { ...config.defaultValues }
-      : ({} as any);
 
     this.setError = (...args) => {
       this.forceFormUpdate = true;
@@ -416,10 +426,7 @@ export class Form<
     this.validatingFields = this._observableStruct.data.validatingFields;
     this.dirtyFields = this._observableStruct.data.dirtyFields;
     this.touchedFields = this._observableStruct.data.touchedFields;
-
-    Object.assign(this, {
-      defaultValues,
-    });
+    this.defaultValues = defaultValues;
 
     const subscription = this.originalForm.subscribe({
       formState: {
@@ -461,6 +468,19 @@ export class Form<
     action.bound(this, 'reset');
 
     makeObservable(this);
+
+    if (isDefaultValuesRawFn) {
+      reaction(
+        () => defaultValuesRaw(),
+        (defaultValues) => {
+          this.resetForm(defaultValues);
+        },
+        {
+          signal: this.abortController.signal,
+          equals: comparer.structural,
+        },
+      );
+    }
 
     this.abortController.signal.addEventListener('abort', () => {
       subscription();

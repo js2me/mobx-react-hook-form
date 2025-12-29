@@ -7,7 +7,7 @@ import type {
   SubmitHandler,
   UseFormProps,
 } from 'react-hook-form';
-
+import type { MaybeFn } from 'yummies/types';
 import type { Form } from './form.js';
 
 export type AnyForm = Form<any, any, any>;
@@ -30,7 +30,7 @@ export interface FormParams<
   /**
    * Async is not supported
    */
-  defaultValues?: DeepPartial<TFieldValues>;
+  defaultValues?: MaybeFn<DeepPartial<TFieldValues>>;
   /**
    * Abort signal for mobx form
    */
