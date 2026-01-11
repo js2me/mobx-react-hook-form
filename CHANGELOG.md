@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 6.2.0
+
+### Minor Changes
+
+- [`6395cbf`](https://github.com/js2me/mobx-react-hook-form/commit/6395cbf09853add7338db0b254e8f1bc9066e5cf) Thanks [@js2me](https://github.com/js2me)! - [internal] update to yummies 7.x , use applyObservable mobx util
+
 ## 6.1.0
 
 ### Minor Changes
