@@ -1,12 +1,5 @@
 import { LinkedAbortController } from 'linked-abort-controller';
-import {
-  action,
-  comparer,
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-} from 'mobx';
+import { action, comparer, computed, observable, reaction } from 'mobx';
 import type { BaseSyntheticEvent } from 'react';
 import {
   type Control,
@@ -31,7 +24,7 @@ import {
   type UseFormTrigger,
   type UseFormUnregister,
 } from 'react-hook-form';
-import { DeepObservableStruct } from 'yummies/mobx';
+import { applyObservable, DeepObservableStruct } from 'yummies/mobx';
 import { isFieldError } from '../utils/index.js';
 import type { ErrorWithPath, FormParams } from './form.types.js';
 
@@ -449,25 +442,30 @@ export class Form<
       },
     });
 
-    observable.ref(this, 'isDirty');
-    observable.ref(this, 'isLoading');
-    observable.ref(this, 'isSubmitted');
-    observable.ref(this, 'isSubmitSuccessful');
-    observable.ref(this, 'isSubmitting');
-    observable.ref(this, 'isValidating');
-    observable.ref(this, 'isValid');
-    observable.ref(this, 'disabled');
-    observable.ref(this, 'submitCount');
-    observable.ref(this, 'isReady');
-    observable.deep(this, 'defaultValues');
-    computed(this, 'hasErrors');
-    action(this, 'updateFormState');
-
-    observable.ref(this, 'originalForm');
-    action.bound(this, 'submit');
-    action.bound(this, 'reset');
-
-    makeObservable(this);
+    applyObservable(
+      this,
+      [
+        [
+          observable.ref,
+          'isDirty',
+          'isLoading',
+          'isSubmitted',
+          'isSubmitSuccessful',
+          'isSubmitting',
+          'isValidating',
+          'isValid',
+          'disabled',
+          'submitCount',
+          'isReady',
+          'originalForm',
+        ],
+        [observable.deep, 'defaultValues'],
+        [computed, 'hasErrors'],
+        [action, 'updateFormState'],
+        [action.bound, 'submit', 'reset'],
+      ],
+      true,
+    );
 
     if (isDefaultValuesRawFn) {
       reaction(
