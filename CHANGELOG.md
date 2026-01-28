@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 6.2.1
+
+### Patch Changes
+
+- [`ce42df1`](https://github.com/js2me/mobx-react-hook-form/commit/ce42df1ba163a2dce7632ce9eb8abcb06e64297c) Thanks [@js2me](https://github.com/js2me)! - fixed cleanup form after abort
+
 ## 6.2.0
 
 ### Minor Changes
