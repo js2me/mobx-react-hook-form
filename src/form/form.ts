@@ -482,8 +482,6 @@ export class Form<
 
     this.abortController.signal.addEventListener('abort', () => {
       subscription();
-      // @ts-expect-error
-      this.originalForm = null;
     });
   }
 
