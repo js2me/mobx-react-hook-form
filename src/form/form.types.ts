@@ -1,3 +1,5 @@
+import type { MaybeFn } from 'yummies/types';
+import type { Form } from './form.js';
 import type {
   DeepPartial,
   FieldError,
@@ -6,9 +8,7 @@ import type {
   SubmitErrorHandler,
   SubmitHandler,
   UseFormProps,
-} from 'react-hook-form';
-import type { MaybeFn } from 'yummies/types';
-import type { Form } from './form.js';
+} from './rhf-compat.js';
 
 export type AnyForm = Form<any, any, any>;
 /**
@@ -22,7 +22,7 @@ export type AnyMobxForm = AnyForm;
 export interface FormParams<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
-  TTransformedValues = TFieldValues,
+  TTransformedValues extends FieldValues = TFieldValues,
 > extends Omit<
     UseFormProps<TFieldValues, TContext, TTransformedValues>,
     'defaultValues'
@@ -69,7 +69,7 @@ export interface FormParams<
 export type MobxFormParams<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
-  TTransformedValues = TFieldValues,
+  TTransformedValues extends FieldValues = TFieldValues,
 > = FormParams<TFieldValues, TContext, TTransformedValues>;
 
 export type ExtractFormFieldValues<T extends AnyForm> = Exclude<

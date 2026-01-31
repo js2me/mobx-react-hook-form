@@ -1,6 +1,9 @@
 import { LinkedAbortController } from 'linked-abort-controller';
 import { action, comparer, computed, observable, reaction } from 'mobx';
 import type { BaseSyntheticEvent } from 'react';
+import { applyObservable, DeepObservableStruct } from 'yummies/mobx';
+import { isFieldError } from '../utils/index.js';
+import type { ErrorWithPath, FormParams } from './form.types.js';
 import {
   type Control,
   createFormControl,
@@ -23,10 +26,7 @@ import {
   type UseFormSetValue,
   type UseFormTrigger,
   type UseFormUnregister,
-} from 'react-hook-form';
-import { applyObservable, DeepObservableStruct } from 'yummies/mobx';
-import { isFieldError } from '../utils/index.js';
-import type { ErrorWithPath, FormParams } from './form.types.js';
+} from './rhf-compat.js';
 
 type FormFullState<TFieldValues extends FieldValues> =
   FormState<TFieldValues> & {
@@ -36,7 +36,7 @@ type FormFullState<TFieldValues extends FieldValues> =
 export class Form<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
-  TTransformedValues = TFieldValues,
+  TTransformedValues extends FieldValues = TFieldValues,
 > implements FormFullState<TFieldValues>
 {
   values: TFieldValues;
@@ -556,9 +556,9 @@ export class Form<
         const result = this.config.onSubmit?.(emptyData);
         if (result instanceof Promise) {
           return result.then(() => resolve(emptyData));
-        } else {
-          return Promise.resolve(emptyData);
         }
+        resolve(emptyData);
+        return;
       }
     });
   }
@@ -671,7 +671,7 @@ export class Form<
 export const createForm = <
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
-  TTransformedValues = TFieldValues,
+  TTransformedValues extends FieldValues = TFieldValues,
 >(
   config: FormParams<TFieldValues, TContext, TTransformedValues>,
 ) => new Form(config);
@@ -682,5 +682,5 @@ export const createForm = <
 export class MobxForm<
   TFieldValues extends FieldValues = FieldValues,
   TContext = any,
-  TTransformedValues = TFieldValues,
+  TTransformedValues extends FieldValues = TFieldValues,
 > extends Form<TFieldValues, TContext, TTransformedValues> {}

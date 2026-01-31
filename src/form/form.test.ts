@@ -2139,4 +2139,157 @@ describe('form', () => {
       });
     });
   });
+
+  it('should expose shouldFocusError getter', () => {
+    const form = createForm({
+      defaultValues: { name: 'John' },
+      shouldFocusError: false,
+    });
+
+    expect(form.originalForm.control._options.shouldFocusError).toBe(false);
+    form.shouldFocusError = true;
+    expect(form.originalForm.control._options.shouldFocusError).toBe(true);
+  });
+
+  it('should react to defaultValues function changes', async () => {
+    const { observable, runInAction } = await import('mobx');
+    const defaultsBox = observable.box({ name: 'John' });
+    const form = createForm({
+      defaultValues: () => defaultsBox.get(),
+    });
+
+    runInAction(() => {
+      defaultsBox.set({ name: 'Jane' });
+    });
+    await sleep(0);
+
+    expect(form.values).toEqual({ name: 'Jane' });
+  });
+
+  it('should focus first error on strict submit checks', async () => {
+    const onSubmitFailed = vi.fn();
+    const form = createForm({
+      defaultValues: { name: 'John' },
+      strictSubmitChecks: true,
+      onSubmitFailed,
+    });
+
+    const setFocusSpy = vi.spyOn(form, 'setFocus');
+    form.errors.name = { type: 'required', message: 'Required' } as any;
+
+    await expect(form.submit()).rejects.toEqual(form.errors);
+    expect(onSubmitFailed).toHaveBeenCalled();
+    expect(setFocusSpy).toHaveBeenCalledWith('name');
+  });
+
+  it('should submit successfully with strict checks and no errors', async () => {
+    const onSubmit = vi.fn();
+    const form = createForm({
+      defaultValues: { name: 'John' },
+      strictSubmitChecks: true,
+      onSubmit,
+    });
+
+    await expect(form.submit()).resolves.toEqual({ name: 'John' });
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it('should handle submit when originalForm is missing (async)', async () => {
+    const onSubmit = vi.fn(async () => undefined);
+    const form = createForm({
+      defaultValues: { name: 'John' },
+      onSubmit,
+    });
+
+    form.originalForm = undefined as any;
+    await expect(form.submit()).resolves.toEqual({ name: 'John' });
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it('should handle submit when originalForm is missing (sync)', async () => {
+    const onSubmit = vi.fn();
+    const form = createForm({
+      defaultValues: { name: 'John' },
+      onSubmit,
+    });
+
+    form.originalForm = undefined as any;
+    form.values = undefined as any;
+    await expect(form.submit()).resolves.toEqual({});
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it('should traverse array error paths deeply', () => {
+    const form = createForm({
+      defaultValues: {
+        items: [{ nested: { value: '' } }],
+      },
+    });
+
+    form.errors.items = [{ nested: { type: 'required' } }] as any;
+
+    const errors = form.getErrorsWithPaths();
+    expect(errors).toEqual([
+      { path: 'items.0.nested', error: { type: 'required' } },
+    ]);
+  });
+
+  it('should return early on first array error', () => {
+    const form = createForm({
+      defaultValues: {
+        items: ['a', 'b'],
+      },
+    });
+
+    form.errors.items = [
+      { type: 'required', message: 'First' },
+      { type: 'required', message: 'Second' },
+    ] as any;
+
+    const errors = form.getErrorsWithPaths(true);
+    expect(errors).toHaveLength(2);
+    expect(errors[0].path).toBe('items.0');
+  });
+
+  it('should handle primitive items in array errors', () => {
+    const form = createForm({
+      defaultValues: { items: [] },
+    });
+
+    form.errors.items = ['nope'] as any;
+    expect(form.getErrorsWithPaths()).toEqual([]);
+  });
+
+  it('should ignore non-object values in error tree', () => {
+    const form = createForm({
+      defaultValues: { name: 'John' },
+    });
+
+    form.errors.misc = 123 as any;
+    expect(form.getErrorsWithPaths()).toEqual([]);
+  });
+
+  it('should handle non-object errors in getErrorsWithPaths', () => {
+    const form = createForm({
+      defaultValues: { name: 'John' },
+    });
+
+    form.errors = null as any;
+    expect(form.getErrorsWithPaths()).toEqual([]);
+  });
+
+  it('should update simple properties in updateFormState', () => {
+    const form = createForm({
+      defaultValues: { name: 'John' },
+    });
+
+    (form as any).updateFormState({
+      isDirty: true,
+      isValid: null,
+      values: { name: 'Jane' },
+    });
+
+    expect(form.isDirty).toBe(true);
+    expect(form.values).toEqual({ name: 'Jane' });
+  });
 });

@@ -37,8 +37,7 @@
   "peerDependencies": {
     "mobx": "^6.12.4",
     "mobx-react-lite": "^4.0.7",
-    "react": "^18.0.0 || ^19.0.0",
-    "react-hook-form": "^7.56.4"
+    "react": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
     "@types/react": "^18.0.0 || ^19.0.0",
@@ -49,6 +48,9 @@
     "@biomejs/biome": "2.2.6",
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.5",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "@vitest/coverage-istanbul": "^3.1.2",
     "commitfmt": "^1.0.4",
@@ -57,6 +59,8 @@
     "jsdom": "^26.1.0",
     "lefthook": "^1.11.13",
     "nodemon": "^3.1.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "rimraf": "^6.0.1",
     "sborshik": "^1.8.2",
     "typescript": "^5.8.3",
