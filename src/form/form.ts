@@ -338,7 +338,7 @@ export class Form<
 
   shouldFocusError: boolean;
 
-  private config: FormParams<TFieldValues, TContext, TTransformedValues>;
+  protected config: FormParams<TFieldValues, TContext, TTransformedValues>;
 
   // special hack to apply the same form value changes from the original form
   // using subscription
@@ -460,7 +460,7 @@ export class Form<
           'originalForm',
         ],
         [observable.deep, 'defaultValues'],
-        [computed, 'hasErrors'],
+        [computed, 'hasErrors', 'isTouched'],
         [action, 'updateFormState'],
         [action.bound, 'submit', 'reset'],
       ],
@@ -483,6 +483,10 @@ export class Form<
     this.abortController.signal.addEventListener('abort', () => {
       subscription();
     });
+  }
+
+  get isTouched() {
+    return Object.keys(this.touchedFields || {}).length > 0;
   }
 
   /**
@@ -614,6 +618,28 @@ export class Form<
     };
 
     traverse(this.errors);
+
+    return result;
+  }
+
+  async validate(focusOnError?: boolean): Promise<TTransformedValues | null> {
+    let result: TTransformedValues | null = null;
+
+    const originalSubmitHandler = this.config.onSubmit;
+    const originalSubmitFailedHandler = this.config.onSubmitFailed;
+    const originalShouldFocusError = this.shouldFocusError;
+
+    this.shouldFocusError = !!focusOnError;
+    this.config.onSubmit = undefined;
+    this.config.onSubmitFailed = undefined;
+
+    try {
+      result = await this.submit();
+    } catch (_) {}
+
+    this.shouldFocusError = originalShouldFocusError;
+    this.config.onSubmit = originalSubmitHandler;
+    this.config.onSubmitFailed = originalSubmitFailedHandler;
 
     return result;
   }
