@@ -1,5 +1,13 @@
 # mobx-react-hook-form
 
+## 6.3.0
+
+### Minor Changes
+
+- [`eef8cbd`](https://github.com/js2me/mobx-react-hook-form/commit/eef8cbd2d45e1f7dec5af0d938642dc1f7cd7c8c) Thanks [@js2me](https://github.com/js2me)! - added `isTouched`
+
+- [`eef8cbd`](https://github.com/js2me/mobx-react-hook-form/commit/eef8cbd2d45e1f7dec5af0d938642dc1f7cd7c8c) Thanks [@js2me](https://github.com/js2me)! - added `validate()` method
+
 ## 6.2.1
 
 ### Patch Changes
