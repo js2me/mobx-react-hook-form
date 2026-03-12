@@ -25,6 +25,7 @@ import {
   type UseFormUnregister,
 } from 'react-hook-form';
 import { applyObservable, DeepObservableStruct } from 'yummies/mobx';
+import type { AnyObject } from 'yummies/types';
 import { isFieldError } from '../utils/index.js';
 import type { ErrorWithPath, FormParams } from './form.types.js';
 
@@ -343,12 +344,14 @@ export class Form<
   // special hack to apply the same form value changes from the original form
   // using subscription
   private forceFormUpdate: boolean;
+  private forceFormValuesUpdate: boolean;
 
   constructor(config: FormParams<TFieldValues, TContext, TTransformedValues>) {
     this.abortController = new LinkedAbortController(config.abortSignal);
 
     this.shouldFocusError = config.shouldFocusError ?? true;
     this.forceFormUpdate = false;
+    this.forceFormValuesUpdate = false;
 
     const defaultValuesRaw = config.defaultValues;
     const isDefaultValuesRawFn = typeof defaultValuesRaw === 'function';
@@ -398,6 +401,7 @@ export class Form<
     this.setFocus = this.originalForm.setFocus;
     this.setValue = (...args) => {
       this.forceFormUpdate = true;
+      this.forceFormValuesUpdate = true;
       return this.originalForm.setValue(...args);
     };
     this.getValues = this.originalForm.getValues;
@@ -432,12 +436,21 @@ export class Form<
         touchedFields: true,
         validatingFields: true,
       },
-      callback: (rawFormState) => {
-        if (this.forceFormUpdate || this.config.lazyUpdates === false) {
-          this.forceFormUpdate = false;
-          this.updateFormState(rawFormState);
+      callback: (upd) => {
+        if (
+          this.forceFormUpdate ||
+          this.forceFormValuesUpdate ||
+          this.config.lazyUpdates === false
+        ) {
+          if (this.forceFormUpdate) {
+            this.forceFormUpdate = false;
+          } else if (this.forceFormValuesUpdate) {
+            this.forceFormValuesUpdate = false;
+          }
+
+          this.updateFormState(upd);
         } else {
-          this.scheduleUpdateFormState(rawFormState);
+          this.scheduleUpdateFormState(upd);
         }
       },
     });
@@ -647,29 +660,37 @@ export class Form<
     return result;
   }
 
-  private updateFormState({
-    values,
-    errors,
-    dirtyFields,
-    validatingFields,
-    touchedFields,
-    ...simpleProperties
-  }: Partial<FormFullState<TFieldValues>>) {
+  private updateFormState(
+    formStateUpdate: Partial<FormFullState<TFieldValues>>,
+  ) {
     this.stopScheduledFormStateUpdate();
-    Object.entries(simpleProperties).forEach(([key, value]) => {
-      if (value != null) {
-        // @ts-expect-error
-        this[key] = value;
+
+    let hasKeys = false;
+    const upd: AnyObject = {};
+
+    Object.entries(formStateUpdate).forEach(([key, value]) => {
+      switch (key) {
+        case 'touchedFields':
+        case 'validatingFields':
+        case 'dirtyFields':
+        case 'errors':
+        case 'values': {
+          hasKeys = true;
+          upd[key] = value;
+          break;
+        }
+        default: {
+          if (value != null) {
+            // @ts-expect-error
+            this[key] = value;
+          }
+        }
       }
     });
 
-    this._observableStruct.set({
-      dirtyFields,
-      errors,
-      touchedFields,
-      validatingFields,
-      values,
-    });
+    if (hasKeys) {
+      this._observableStruct.set(upd);
+    }
   }
 
   protected lastTimeoutId: ReturnType<typeof setTimeout> | undefined;
