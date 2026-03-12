@@ -584,7 +584,10 @@ export class Form<
     return Object.keys(this.errors).length > 0;
   }
 
-  getErrorsWithPaths(getOnlyFirst?: boolean): ErrorWithPath<TFieldValues>[] {
+  getErrorsWithPaths(
+    getOnlyFirst?: boolean,
+    errors = this.errors,
+  ): ErrorWithPath<TFieldValues>[] {
     const result: ErrorWithPath<TFieldValues>[] = [];
 
     const traverse = (obj: any, prefix = '') => {
@@ -617,7 +620,7 @@ export class Form<
       });
     };
 
-    traverse(this.errors);
+    traverse(errors);
 
     return result;
   }
