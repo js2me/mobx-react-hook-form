@@ -1,5 +1,15 @@
 # mobx-react-hook-form
 
+## 6.4.0
+
+### Minor Changes
+
+- [`2aabad6`](https://github.com/js2me/mobx-react-hook-form/commit/2aabad674f1740fb52bffc9afe3cb8699195ee22) Thanks [@js2me](https://github.com/js2me)! - added second arg for `getErrorsWithPaths` method
+
+### Patch Changes
+
+- [`09db8ce`](https://github.com/js2me/mobx-react-hook-form/commit/09db8cede43fa250d01290d8f478d3a4519cfe5c) Thanks [@js2me](https://github.com/js2me)! - change priority for values update after changeField method call in form
+
 ## 6.3.0
 
 ### Minor Changes
