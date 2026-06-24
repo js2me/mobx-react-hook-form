@@ -28,3 +28,6 @@ vite.config.ts.timestamp-*.*
 playwright-report
 
 test-results
+
+.pnpm-store
+index.db
