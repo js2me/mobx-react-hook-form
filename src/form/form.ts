@@ -1,5 +1,5 @@
 import { LinkedAbortController } from 'linked-abort-controller';
-import { action, comparer, computed, observable, reaction } from 'mobx';
+import { action, comparer, computed, observable, reaction, toJS } from 'mobx';
 import type { BaseSyntheticEvent } from 'react';
 import {
   type Control,
@@ -405,10 +405,6 @@ export class Form<
       return this.originalForm.setValue(...args);
     };
     this.getValues = this.originalForm.getValues;
-    this.resetForm = (...args) => {
-      this.forceFormUpdate = true;
-      return this.originalForm.reset(...args);
-    };
 
     this._observableStruct = new DeepObservableStruct({
       values: this.originalForm.getValues(),
@@ -417,6 +413,20 @@ export class Form<
       touchedFields: {},
       validatingFields: {},
     });
+
+    this.resetForm = (...args) => {
+      this.forceFormUpdate = true;
+
+      if (args[0] !== undefined) {
+        const resetValues = toJS(args[0]) as TFieldValues;
+
+        this._observableStruct.set({ values: resetValues });
+
+        return this.originalForm.reset(resetValues, args[1]);
+      }
+
+      return this.originalForm.reset(...args);
+    };
 
     this.values = this._observableStruct.data.values;
     this.errors = this._observableStruct.data.errors;
@@ -673,10 +683,15 @@ export class Form<
         case 'touchedFields':
         case 'validatingFields':
         case 'dirtyFields':
-        case 'errors':
-        case 'values': {
+        case 'errors': {
           hasKeys = true;
           upd[key] = value;
+          break;
+        }
+        case 'values': {
+          hasKeys = true;
+          // RHF subscription may deliver stale values (e.g. duplicate reset callbacks).
+          upd[key] = this.originalForm.getValues();
           break;
         }
         default: {

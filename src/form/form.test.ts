@@ -1,7 +1,20 @@
+import { autorun, observable } from 'mobx';
 import { describe, expect, it, vi } from 'vitest';
 import { sleep } from 'yummies/async';
 import type { Maybe } from 'yummies/types';
 import { createForm } from './form';
+
+type TestSection =
+  | { content: string; title: string; type: 'editor' }
+  | { icon: string | null; title: string; type: 'link'; url: string };
+
+type PageCreateRequestModel = {
+  alias: string;
+  isPublished: boolean;
+  parentId: string | null;
+  title: string;
+  sections: TestSection[];
+};
 
 describe('form', () => {
   it('changeValue should update form.values', async () => {
@@ -731,6 +744,338 @@ describe('form', () => {
     });
 
     expect(form.values.level1.level2.level3.level4.value).toBe('deepValue');
+  });
+
+  describe('issue #12: resetForm + dynamic array fields', () => {
+    const createPageForm = () =>
+      createForm<PageCreateRequestModel>({
+        defaultValues: {
+          alias: '',
+          isPublished: false,
+          parentId: null,
+          title: '',
+          sections: [],
+        },
+      });
+
+    const apiPayload: PageCreateRequestModel = {
+      alias: 'test-page',
+      isPublished: false,
+      parentId: null,
+      title: 'Test Page',
+      sections: [
+        { content: 'content 1', title: 'Section 1', type: 'editor' },
+        {
+          icon: null,
+          title: 'Section 2',
+          type: 'link',
+          url: 'https://example.com',
+        },
+      ],
+    };
+
+    const createEditorSection = (): TestSection => ({
+      content: '',
+      title: 'New Section',
+      type: 'editor',
+    });
+
+    it('should reflect newly appended sections in form.values after resetForm', () => {
+      const form = createPageForm();
+
+      form.resetForm(apiPayload);
+      expect(form.values.sections).toHaveLength(2);
+
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+      expect(form.values.sections[2]).toEqual(createEditorSection());
+    });
+
+    it('should notify mobx observers when a section is appended after resetForm', () => {
+      const form = createPageForm();
+      const observedLengths: number[] = [];
+
+      form.resetForm(apiPayload);
+
+      const dispose = autorun(() => {
+        observedLengths.push(form.values.sections.length);
+      });
+
+      expect(observedLengths).toEqual([2]);
+
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      dispose();
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(observedLengths).toEqual([2, 3]);
+    });
+
+    it('should notify mobx observers when multiple sections are appended after resetForm', () => {
+      const form = createPageForm();
+      const observedLengths: number[] = [];
+
+      form.resetForm(apiPayload);
+
+      const dispose = autorun(() => {
+        observedLengths.push(form.values.sections.length);
+      });
+
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+      form.setValue(`sections.${form.values.sections.length}`, {
+        icon: null,
+        title: 'Another link',
+        type: 'link',
+        url: '',
+      });
+
+      dispose();
+
+      expect(form.getValues('sections')).toHaveLength(4);
+      expect(observedLengths).toEqual([2, 3, 4]);
+    });
+
+    it('should keep form.values.sections in sync after lazy updates', async () => {
+      const form = createForm<PageCreateRequestModel>({
+        defaultValues: {
+          alias: '',
+          isPublished: false,
+          parentId: null,
+          title: '',
+          sections: [],
+        },
+        lazyUpdates: true,
+        lazyUpdatesTimer: 10,
+      });
+
+      form.resetForm(apiPayload);
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      await sleep(20);
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+    });
+
+    it('should notify mobx observers when section is appended in the same tick after resetForm', () => {
+      const form = createPageForm();
+      const observedLengths: number[] = [];
+
+      const dispose = autorun(() => {
+        observedLengths.push(form.values.sections.length);
+      });
+
+      form.resetForm(apiPayload);
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      dispose();
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+      expect(observedLengths.at(-1)).toBe(3);
+    });
+
+    it('should notify mobx observers when section is appended via changeField after resetForm', async () => {
+      const form = createPageForm();
+      const observedLengths: number[] = [];
+
+      form.resetForm(apiPayload);
+
+      const dispose = autorun(() => {
+        observedLengths.push(form.values.sections.length);
+      });
+
+      form.changeField(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      await sleep(10);
+
+      dispose();
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+      expect(observedLengths.at(-1)).toBe(3);
+    });
+
+    it('should allow mapping sections for render after resetForm and append', () => {
+      const form = createPageForm();
+      const renderedTypes: TestSection['type'][] = [];
+
+      form.resetForm(apiPayload);
+
+      const dispose = autorun(() => {
+        renderedTypes.length = 0;
+        form.values.sections.forEach((section) => {
+          renderedTypes.push(section.type);
+        });
+      });
+
+      expect(renderedTypes).toEqual(['editor', 'link']);
+
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      dispose();
+
+      expect(renderedTypes).toEqual(['editor', 'link', 'editor']);
+    });
+
+    it('should sync observable sections from store-like computed after resetForm and append', () => {
+      const form = createPageForm();
+
+      const store = observable({
+        get sections() {
+          return form.values.sections;
+        },
+        get sectionsLength() {
+          return form.values.sections.length;
+        },
+        addSection(section: TestSection) {
+          form.setValue(`sections.${this.sectionsLength}`, section);
+        },
+      });
+
+      const renderedTitles: string[] = [];
+
+      form.resetForm(apiPayload);
+
+      const dispose = autorun(() => {
+        renderedTitles.length = 0;
+        store.sections.forEach((section) => {
+          renderedTitles.push(section.title);
+        });
+      });
+
+      expect(renderedTitles).toEqual(['Section 1', 'Section 2']);
+
+      store.addSection(createEditorSection());
+
+      dispose();
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(renderedTitles).toEqual(['Section 1', 'Section 2', 'New Section']);
+    });
+
+    it('should keep form.values.sections in sync with getValues after append', () => {
+      const form = createPageForm();
+
+      form.resetForm(apiPayload);
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+      expect(form.values.sections.map((section) => section.title)).toEqual([
+        'Section 1',
+        'Section 2',
+        'New Section',
+      ]);
+      expect(
+        form.getValues('sections').map((section) => section.title),
+      ).toEqual(['Section 1', 'Section 2', 'New Section']);
+    });
+
+    it('should not revert appended sections when delayed lazy update fires', async () => {
+      vi.useFakeTimers();
+
+      const form = createForm<PageCreateRequestModel>({
+        defaultValues: {
+          alias: '',
+          isPublished: false,
+          parentId: null,
+          title: '',
+          sections: [],
+        },
+        lazyUpdates: true,
+        lazyUpdatesTimer: 100,
+      });
+
+      form.register('alias');
+      form.resetForm(apiPayload);
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      await vi.runAllTimersAsync();
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+
+      vi.useRealTimers();
+    });
+
+    it('should not lose appended section when stale subscription values arrive (issue #12)', () => {
+      const form = createPageForm();
+
+      form.resetForm(apiPayload);
+      form.setValue(
+        `sections.${form.values.sections.length}`,
+        createEditorSection(),
+      );
+
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.values.sections).toHaveLength(3);
+
+      // Simulates a delayed duplicate reset callback with stale values.
+      (
+        form as unknown as { updateFormState: (state: object) => void }
+      ).updateFormState({
+        values: {
+          alias: apiPayload.alias,
+          isPublished: apiPayload.isPublished,
+          parentId: apiPayload.parentId,
+          title: apiPayload.title,
+          sections: apiPayload.sections,
+        },
+      });
+
+      // Internal RHF state still has the new section...
+      expect(form.getValues('sections')).toHaveLength(3);
+      expect(form.getValues('sections')[2]?.title).toBe('New Section');
+
+      // ...but mobx-observable values used by observer components are reverted.
+      expect(form.values.sections).toHaveLength(3);
+      expect(form.values.sections[2]?.title).toBe('New Section');
+    });
+
+    it('documents structuredClone failure with mobx-observable payload', () => {
+      const observablePayload = observable(apiPayload);
+
+      expect(() => structuredClone(observablePayload)).toThrow();
+      expect(() => structuredClone(observablePayload.sections)).toThrow();
+    });
+
+    it('should not throw when resetForm receives mobx-observable payload', () => {
+      const form = createPageForm();
+      const observablePayload = observable(apiPayload);
+
+      expect(() => form.resetForm(observablePayload)).not.toThrow();
+      expect(form.values.sections).toHaveLength(2);
+    });
   });
 
   describe('resetForm', () => {
