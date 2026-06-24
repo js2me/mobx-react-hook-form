@@ -1,5 +1,11 @@
 # mobx-react-hook-form
 
+## 6.4.1
+
+### Patch Changes
+
+- [`b8e5958`](https://github.com/js2me/mobx-react-hook-form/commit/b8e595846c06bda3defcf6266cc4c13c19cfba41) Thanks [@js2me](https://github.com/js2me)! - fixed issue #12
+
 ## 6.4.0
 
 ### Minor Changes
